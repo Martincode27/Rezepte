@@ -49,9 +49,9 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
 
 | Bereich | Wahl | Status |
 |---|---|---|
-| Bisheriges Backend | Google Sheets + Apps Script Web-App | wird abgelöst |
-| Neues Backend | Supabase (Postgres + Storage) | Entscheidung getroffen, Umsetzung offen |
-| Frontend | bislang eine einzelne HTML-Datei mit Vanilla-JS | wird bei Umbau modularisiert |
+| Bisheriges Backend | Google Sheets + Apps Script Web-App | abgelöst, nicht mehr im Einsatz |
+| Neues Backend | Supabase (Postgres + Storage) | **live** — Schema + Datenmigration + Frontend-Anbindung fertig (2026-09-18) |
+| Frontend | eine einzelne HTML-Datei (`index.html`) mit Vanilla-JS, spricht jetzt direkt PostgREST/Storage an | funktioniert, Modularisierung bewusst zurückgestellt |
 | Versionskontrolle | Git, dieses Repo | initialisiert |
 | Wissensspeicher | Obsidian, `D:\Vault\Projects\Rezepte\` | angelegt |
 | Rezepte auch als Dateien | einzelne Markdown-Datei pro Rezept in Obsidian (Pfad-Struktur), zusätzlich zur DB | offen — Format/Sync-Richtung noch zu klären |
@@ -60,13 +60,14 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
 
 ## 4. Bekannte Probleme der alten Version (Ausgangspunkt für den Umbau)
 
-- Bild-Upload/-Anzeige unzuverlässig (Base64 → Apps Script → Drive-Umweg).
-- API-Antworten vom Apps-Script-Backend kamen teils als zwei aneinandergehängte JSON-Objekte zurück
-  (`apiGet`/`apiPost` in `index.html` enthalten einen `}{`-Split-Hack als Workaround) — Hinweis auf
-  ein unzuverlässiges Backend, nicht nur ein Frontend-Detail.
+- ~~Bild-Upload/-Anzeige unzuverlässig (Base64 → Apps Script → Drive-Umweg).~~ **behoben** — läuft jetzt
+  über Supabase Storage, im Browser getestet (2026-09-18).
+- ~~API-Antworten vom Apps-Script-Backend kamen teils als zwei aneinandergehängte JSON-Objekte zurück~~
+  **behoben** — Apps Script ist raus, PostgREST liefert sauberes JSON.
 - Rezept manuell anlegen ist aufwändig (viele Formularfelder) — soll durch einfacheren Import ersetzt
-  werden (Audio/Text-Beschreibung + Foto → automatisch strukturiertes Rezept).
+  werden (Audio/Text-Beschreibung + Foto → automatisch strukturiertes Rezept). **noch offen.**
 - Alles in einer 1169-Zeilen-HTML-Datei (Markup+CSS+JS gemischt) — nicht aufgeteilt, kein Build-Tooling.
+  **noch offen**, bewusst zurückgestellt (erst Backend-Umstellung fertig, dann Struktur).
 
 ---
 
@@ -89,3 +90,33 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
 - Nutzer hat erste Feature-Ideen durchgegeben (siehe Abschnitt 5 / Backlog) — noch keine davon umgesetzt.
 - Nächster Schritt: technisches Konzept für die Supabase-Migration (Schema, Bild-Storage, Auth) und
   für das Obsidian-Rezeptdateien-Format gemeinsam abstimmen, bevor Code geschrieben wird.
+
+### 2026-09-18 — Session 2
+- Supabase-Projekt vom Nutzer angelegt, Zugangsdaten (URL + Publishable Key) in `.env` hinterlegt.
+- Datenbank-Schema abgestimmt und als Migrationen umgesetzt: `recipes`/`recipe_steps`/`recipe_items`
+  (normalisiert statt JSON-Blob)/`ingredients`, RLS mit offener Policy (kein Auth-System).
+- Beim Sichten der echten Sheets-Daten Felder ergänzt, die im alten Formular nicht editierbar waren,
+  aber in den Daten steckten: `sugar`/`fiber` bei Zutaten, `video_url` bei Rezepten, `optional`-Flag
+  bei Rezept-Zutaten.
+- `scripts/migrate-from-sheets.mjs`: alle Daten aus der alten Apps-Script-API nach Supabase übernommen
+  — 18 Rezepte, 82 Zutaten (1 exaktes Namens-Duplikat im alten Sheet automatisch dedupliziert),
+  26 Schritte, 190 Zutaten-/Gewürz-/Pool-Zeilen. 19 Zutaten-Namen aus Rezepten ohne exakten Treffer in
+  der Zutatendatenbank (Freitext bleibt erhalten, nur ohne Nährwert-Verknüpfung) — Liste im Backlog.
+- Storage-Bucket `recipe-images` + Policies (`0003_storage.sql`) angelegt.
+- `index.html` von Google Sheets/Apps Script auf Supabase (PostgREST + Storage) umgestellt:
+  `sb()`-Helper ersetzt `apiGet`/`apiPost`, `mapRecipe()` bildet das normalisierte DB-Schema wieder
+  aufs alte In-Memory-Format ab (Render-/Formular-Code dadurch weitgehend unverändert), `saveRecipe()`
+  schreibt Rezept+Schritte+Items einzeln, inkl. Bild-Upload in Supabase Storage.
+- Rezept-IDs sind jetzt UUIDs statt Zahlen-Strings — alle Stellen gefunden und gefixt, an denen IDs
+  ungequotet in `onclick`-Attribute eingebettet wurden (hätte mit Bindestrichen als Subtraktion
+  geparst).
+- End-to-End im Browser getestet (lokaler Dev-Server, `scripts/dev-server.mjs`, da lokale Dateien
+  außerhalb des Projektordners im Browser-Tool nicht ausgeführt werden): Laden, Detail, Bearbeiten,
+  Neuanlegen inkl. Bild-Upload, Löschen, Zutatendatenbank, Einkaufsliste. Dabei drei Bugs gefunden und
+  gefixt — einer durch die Umstellung verursacht (inkonsistente Keys bei Massen-Insert), zwei
+  vorbestehende Bugs aus der alten Version (`getSteps(null)`-Crash beim leeren Formular, "null" als
+  Kategorie-Text bei leerer Kategorie).
+- Nach dem Testlauf: Datenbank exakt im Ausgangszustand verifiziert (18 Rezepte/26 Schritte/190 Items).
+- **Backend-Migration damit inhaltlich abgeschlossen.** Nächste offene Punkte (siehe Backlog):
+  vereinfachter Rezept-Import, "Was habe ich zuhause?", Wochenplan, Obsidian-Rezeptdateien,
+  Frontend-Modularisierung.
