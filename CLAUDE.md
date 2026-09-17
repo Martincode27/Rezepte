@@ -8,7 +8,9 @@ Wissensspeicher/Notizen (Backlog, Entscheidungen, Journal) liegen **nicht** hier
 projektübergreifenden Obsidian-Vault unter **`D:\Vault\Projects\Rezepte\`** (eigenes Git-Repo,
 getrennt von diesem Code-Repo) — analog zum TradingBot-Projekt.
 
-Zuletzt aktualisiert: 2026-09-17
+Zuletzt aktualisiert: 2026-09-18
+
+**Live:** https://martincode27.github.io/Rezepte/ (GitHub Pages, Repo `Martincode27/Rezepte`, öffentlich)
 
 ---
 
@@ -120,3 +122,13 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
 - **Backend-Migration damit inhaltlich abgeschlossen.** Nächste offene Punkte (siehe Backlog):
   vereinfachter Rezept-Import, "Was habe ich zuhause?", Wochenplan, Obsidian-Rezeptdateien,
   Frontend-Modularisierung.
+- Nutzer meldete danach: Bilder werden nicht angezeigt. Ursache gefunden — Google-Drive-Direktlinks
+  (`lh3.googleusercontent.com`) antworteten nach wiederholtem Laden beim Testen mit HTTP 503
+  (Rate-Limit). `scripts/migrate-images-to-storage.mjs`: alle 17 Bilder einmalig von Google Drive
+  nach Supabase Storage migriert, `image_url` aktualisiert. Im echten Browser (Claude in Chrome)
+  verifiziert.
+- App auf **GitHub Pages** veröffentlicht, damit auch andere Familienmitglieder zugreifen können:
+  Repo `Martincode27/Rezepte` (öffentlich, Nutzer hatte bereits ein GitHub-Konto — kein neuer Account
+  nötig), Branch `main`, GitHub Pages auf Root aktiviert. Live unter
+  https://martincode27.github.io/Rezepte/, im Browser verifiziert (Rezepte + Bilder laden korrekt).
+  Hinweis dazu im Vault (`Entscheidungen.md`) und oben im Kopf dieser Datei vermerkt.
