@@ -631,7 +631,7 @@ function updateTime() { maxTime=parseInt(document.getElementById('t-slider').val
 
 // ── Helpers ───────────────────────────────────────────────
 function normCat(c) { if(Array.isArray(c)) return c; if(typeof c==='string'){ var t=c.trim(); if(t.startsWith('[')){ try{return JSON.parse(t);}catch(e){} } return t?[t]:[]; } return []; }
-function getSteps(r) { return Array.isArray(r.steps)?r.steps:[]; }
+function getSteps(r) { return (r && Array.isArray(r.steps))?r.steps:[]; }
 function allIngNames(r) { var n=[]; getSteps(r).forEach(function(s){ (s.ingredients||[]).forEach(function(i){ n.push(typeof i==='string'?i:i.name); }); }); return n; }
 function findIng(name) { return ingredients.find(function(i){ return i.name.toLowerCase()===name.toLowerCase(); }); }
 
@@ -1020,8 +1020,8 @@ async function saveRecipe(){
       var stepId = stepRows[0].id;
       var items = [];
       s.ingredients.forEach(function(i,n){ items.push({step_id:stepId, name_raw:i.name, amount:i.amount||null, hint:i.hint||null, kind:'ingredient', optional:false, sort_order:n}); });
-      s.spices.forEach(function(sp,n){ items.push({step_id:stepId, name_raw:sp.name, amount:sp.amount||null, kind:'spice', optional:false, sort_order:n}); });
-      s.pool.forEach(function(p,n){ items.push({step_id:stepId, name_raw:p.name, amount:p.amount||null, kind:'pool', optional:true, sort_order:n}); });
+      s.spices.forEach(function(sp,n){ items.push({step_id:stepId, name_raw:sp.name, amount:sp.amount||null, hint:null, kind:'spice', optional:false, sort_order:n}); });
+      s.pool.forEach(function(p,n){ items.push({step_id:stepId, name_raw:p.name, amount:p.amount||null, hint:null, kind:'pool', optional:true, sort_order:n}); });
       if (items.length) await sb('recipe_items', {method:'POST', body:items, prefer:'return=minimal'});
     }
 
@@ -1052,7 +1052,7 @@ function renderIngredientsTab(){
   var rows=list.map(function(i){
     return '<div class="ing-db-row">'
       +'<span class="ing-db-name">'+i.name+'</span>'
-      +'<span class="ing-db-cat">'+i.category+'</span>'
+      +'<span class="ing-db-cat">'+(i.category||'')+'</span>'
       +'<span class="ing-db-val">'+(i.kcal||'-')+'</span>'
       +'<span class="ing-db-val">'+(i.protein||'-')+'</span>'
       +'<span class="ing-db-val">'+(i.carbs||'-')+'</span>'
