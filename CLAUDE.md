@@ -56,7 +56,7 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
 | Frontend | eine einzelne HTML-Datei (`index.html`) mit Vanilla-JS, spricht jetzt direkt PostgREST/Storage an | funktioniert, Modularisierung bewusst zurückgestellt |
 | Versionskontrolle | Git, dieses Repo | initialisiert |
 | Wissensspeicher | Obsidian, `D:\Vault\Projects\Rezepte\` | angelegt |
-| Rezepte auch als Dateien | einzelne Markdown-Datei pro Rezept in Obsidian (Pfad-Struktur), zusätzlich zur DB | offen — Format/Sync-Richtung noch zu klären |
+| Rezepte auch als Dateien | einzelne Markdown-Datei pro Rezept in Obsidian, `D:\Vault\Projects\Rezepte\Rezepte\` | **live** — `scripts/export-to-obsidian.mjs`, reiner Spiegel, manuell auszuführen |
 
 ---
 
@@ -132,3 +132,10 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
   nötig), Branch `main`, GitHub Pages auf Root aktiviert. Live unter
   https://martincode27.github.io/Rezepte/, im Browser verifiziert (Rezepte + Bilder laden korrekt).
   Hinweis dazu im Vault (`Entscheidungen.md`) und oben im Kopf dieser Datei vermerkt.
+- Nutzer wollte außerdem jedes Rezept als einzelne Datei in Obsidian sehen (offener Punkt seit
+  Session 1). `scripts/export-to-obsidian.mjs` geschrieben und laufen lassen: 18 `.md`-Dateien in
+  `D:\Vault\Projects\Rezepte\Rezepte\`, mit Frontmatter (Metadaten, Kategorien als Tags),
+  Zutaten/Gewürzen/Pool pro Schritt, berechneten Nährwerten und eingebettetem Bild. Reiner Spiegel
+  (Supabase bleibt führend, Entscheidung 2026-09-17) — Skript überschreibt bei jedem Lauf und räumt
+  verwaiste Dateien auf. Läuft aktuell nur manuell, nicht automatisch nach jeder Änderung (siehe
+  Backlog). `00_Start.md` im Vault zu einem kurzen Architektur-Überblick aufgeräumt.
