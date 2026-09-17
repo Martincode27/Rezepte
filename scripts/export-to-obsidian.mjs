@@ -41,6 +41,10 @@ function slugFilename(name) {
   return name.replace(/[\\/:*?"<>|]/g, '-').trim();
 }
 
+function catLabel(c) {
+  return c.charAt(0).toUpperCase() + c.slice(1);
+}
+
 function findIng(ingredients, name) {
   const key = name.trim().toLowerCase();
   return ingredients.find((i) => i.name.trim().toLowerCase() === key);
@@ -114,7 +118,11 @@ function buildMarkdown(r, ingredients) {
   if (r.portions) metaBits.push(`Portionen: ${r.portions}`);
   if (r.author) metaBits.push(`Von: ${r.author}`);
   if (metaBits.length) body += metaBits.join(' · ') + '\n\n';
-  if (cats.length) body += cats.map((c) => `#${c.replace(/\s+/g, '-')}`).join(' ') + '\n\n';
+  if (cats.length) {
+    body += cats.map((c) => `#${c.replace(/\s+/g, '-')}`).join(' ') + '\n\n';
+    body += '**Kategorien:** ' + cats.map((c) => `[[Kategorien/${catLabel(c)}|${catLabel(c)}]]`).join(' · ') + '\n\n';
+  }
+  body += '[[_Index|← Alle Rezepte]]\n\n';
 
   if (nutrition) {
     body += `**Nährwerte pro Portion${nutrition.complete ? '' : ' (unvollständig)'}:** ${nutrition.kcal} kcal · ${nutrition.protein}g Protein · ${nutrition.carbs}g Kohlenhydrate · ${nutrition.fat}g Fett\n\n`;
@@ -140,31 +148,72 @@ function buildMarkdown(r, ingredients) {
   return fm + body;
 }
 
-async function main() {
-  mkdirSync(VAULT_DIR, { recursive: true });
+function buildIndex(recipes) {
+  const byCat = new Map();
+  for (const r of recipes) {
+    for (const c of r.categories || []) {
+      if (!byCat.has(c)) byCat.set(c, []);
+      byCat.get(c).push(r.name);
+    }
+  }
+  let body = '# Alle Rezepte\n\n';
+  body += `> [!info] Automatisch aus Supabase generiert — nicht hier bearbeiten. ${recipes.length} Rezepte, Stand ${new Date().toISOString()}\n\n`;
+  body += '## Nach Kategorie\n\n';
+  for (const [cat, names] of [...byCat.entries()].sort((a, b) => a[0].localeCompare(b[0], 'de'))) {
+    body += `**[[Kategorien/${catLabel(cat)}|${catLabel(cat)}]]** (${names.length}): `;
+    body += names.sort((a, b) => a.localeCompare(b, 'de')).map((n) => `[[${n}]]`).join(', ') + '\n\n';
+  }
+  body += '## Alphabetisch\n\n';
+  body += recipes.slice().sort((a, b) => a.name.localeCompare(b.name, 'de')).map((r) => `- [[${r.name}]]`).join('\n') + '\n';
+  return body;
+}
 
+function syncFolder(dir, files) {
+  // files: Map<filename, content>. Schreibt alle, entfernt was nicht mehr dazugehoert.
+  mkdirSync(dir, { recursive: true });
+  for (const [filename, content] of files) {
+    writeFileSync(path.join(dir, filename), content, 'utf-8');
+  }
+  for (const f of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    if (!files.has(f)) {
+      unlinkSync(path.join(dir, f));
+      console.log(`  ✗ entfernt (verwaist): ${path.basename(dir)}/${f}`);
+    }
+  }
+}
+
+async function main() {
   const [ingredients, recipes] = await Promise.all([
     sb('ingredients?select=id,name,kcal,protein,carbs,fat'),
     sb('recipes?select=*,recipe_steps(*,recipe_items(*))&recipe_steps.order=step_order.asc&recipe_steps.recipe_items.order=sort_order.asc&order=name.asc'),
   ]);
   console.log(`${recipes.length} Rezepte aus Supabase geladen`);
 
-  const writtenFiles = new Set();
+  // Rezept-Notizen
+  const recipeFiles = new Map();
   for (const r of recipes) {
-    const filename = slugFilename(r.name) + '.md';
-    writeFileSync(path.join(VAULT_DIR, filename), buildMarkdown(r, ingredients), 'utf-8');
-    writtenFiles.add(filename);
-    console.log(`  ✓ ${filename}`);
+    recipeFiles.set(slugFilename(r.name) + '.md', buildMarkdown(r, ingredients));
+    console.log(`  ✓ ${r.name}`);
   }
+  recipeFiles.set('_Index.md', buildIndex(recipes));
+  syncFolder(VAULT_DIR, recipeFiles);
 
-  // Verwaiste Dateien entfernen (Rezept geloescht/umbenannt seit letztem Export)
-  const existing = readdirSync(VAULT_DIR).filter((f) => f.endsWith('.md'));
-  for (const f of existing) {
-    if (!writtenFiles.has(f)) {
-      unlinkSync(path.join(VAULT_DIR, f));
-      console.log(`  ✗ entfernt (verwaist): ${f}`);
+  // Kategorie-Hub-Notizen (verbinden Rezepte mit gemeinsamen Kategorien im Graph)
+  const byCat = new Map();
+  for (const r of recipes) {
+    for (const c of r.categories || []) {
+      if (!byCat.has(c)) byCat.set(c, []);
+      byCat.get(c).push(r.name);
     }
   }
+  const catFiles = new Map();
+  for (const [cat, names] of byCat) {
+    const label = catLabel(cat);
+    const links = names.sort((a, b) => a.localeCompare(b, 'de')).map((n) => `- [[${n}]]`).join('\n');
+    catFiles.set(`${label}.md`, `# ${label}\n\n${links}\n`);
+  }
+  syncFolder(path.join(VAULT_DIR, 'Kategorien'), catFiles);
+  console.log(`  ${byCat.size} Kategorie-Notizen`);
 
   console.log('Fertig.');
 }
