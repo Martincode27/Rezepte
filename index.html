@@ -294,7 +294,7 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 @media(max-width:640px){
   .layout{flex-direction:column}
   .sidebar{width:100%;height:auto;flex-direction:column;overflow:visible}
-  .nav-cats,.nav-sec,.nav-div,.sidebar-bot{display:none!important}
+  .nav-cats,.nav-sec,.nav-div,.sidebar-bot,.nav-item{display:none!important}
   .mob-nav{display:flex;overflow-x:auto;padding:8px 12px;gap:6px;border-bottom:1px solid var(--b1);scrollbar-width:none}
   .mob-nav::-webkit-scrollbar{display:none}
   .mob-item{padding:6px 14px;border-radius:20px;border:1px solid var(--b2);white-space:nowrap;font-size:12px;color:var(--mu);cursor:pointer;user-select:none;flex-shrink:0}
@@ -305,6 +305,8 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   .search-row{padding:8px 16px}
   .result-info{padding:0 16px 8px}
   .grid{padding:0 16px 20px;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+  .view-head{position:sticky;top:0;z-index:5;background:var(--bg);transition:transform .25s ease;will-change:transform}
+  .view-head.hide{transform:translateY(-100%)}
   .form-wrap,.det-wrap,.shop-wrap,.ing-db-wrap{padding:16px}
   .form-row-4{grid-template-columns:1fr 1fr}
   .ing-row{grid-template-columns:1fr 100px 80px 32px}
@@ -349,6 +351,7 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   <div class="main">
     <!-- DISCOVER -->
     <div class="view active" id="view-discover">
+      <div class="view-head">
       <div class="topbar">
         <div><div class="page-title" id="dis-title">Was koche ich heute?</div><div class="page-sub" id="dis-sub">Wähle was du möchtest</div></div>
         <div class="tb-actions">
@@ -367,25 +370,29 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
         <div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="search-dis" placeholder="Rezept oder Zutat suchen…" oninput="renderDiscover()"></div>
       </div>
       <div class="result-info" id="dis-info"></div>
+      </div>
       <div class="grid" id="dis-grid"></div>
     </div>
     <!-- ALL -->
     <div class="view" id="view-all">
+      <div class="view-head">
       <div class="topbar">
         <div><div class="page-title">Alle Rezepte</div></div>
         <div class="tb-actions"><button class="btn btn-primary" onclick="openAdd()">+ Rezept</button></div>
       </div>
       <div class="search-row"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="search-all" placeholder="Suchen…" oninput="renderAll()"></div></div>
       <div class="result-info" id="all-info"></div>
+      </div>
       <div class="grid" id="all-grid"></div>
     </div>
     <!-- ADD/EDIT -->
     <div class="view" id="view-add">
-      <div class="topbar"><div><div class="page-title" id="add-title">Neues Rezept</div></div></div>
+      <div class="view-head"><div class="topbar"><div><div class="page-title" id="add-title">Neues Rezept</div></div></div></div>
       <div class="form-wrap" id="form-wrap"></div>
     </div>
     <!-- DETAIL -->
     <div class="view" id="view-detail">
+      <div class="view-head">
       <div class="topbar">
         <div><div class="page-title">Rezept</div></div>
         <div class="tb-actions">
@@ -393,16 +400,19 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
           <button class="btn btn-danger" onclick="confirmDel()">Löschen</button>
         </div>
       </div>
+      </div>
       <div class="det-wrap" id="det-content"></div>
     </div>
     <!-- SHOP -->
     <div class="view" id="view-shop">
+      <div class="view-head">
       <div class="topbar">
         <div><div class="page-title">Einkaufsliste</div><div class="page-sub" id="shop-sub"></div></div>
         <div class="tb-actions">
           <button class="btn btn-ghost" onclick="clearDone()">Abgehakte löschen</button>
           <button class="btn btn-danger btn-sm" onclick="clearShop()">Liste leeren</button>
         </div>
+      </div>
       </div>
       <div class="shop-wrap">
         <div class="shop-tabs" id="shop-tabs" style="display:none">
@@ -415,11 +425,13 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
     </div>
     <!-- INGREDIENTS DB -->
     <div class="view" id="view-ingredients">
+      <div class="view-head">
       <div class="topbar">
         <div><div class="page-title">Zutatendatenbank</div><div class="page-sub" id="ing-count-sub"></div></div>
         <div class="tb-actions"><button class="btn btn-primary" onclick="openIngEdit(null)">+ Zutat</button></div>
       </div>
       <div class="search-row"><div class="sw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="search-ings" placeholder="Zutat suchen…" oninput="renderIngredientsTab()"></div></div>
+      </div>
       <div class="ing-db-wrap" id="ing-db-wrap"></div>
     </div>
   </div>
@@ -607,6 +619,7 @@ function sv(v, skipRender) {
     if (v === 'ingredients') renderIngredientsTab();
   }
   document.querySelector('.main').scrollTop = 0;
+  document.querySelectorAll('.view-head.hide').forEach(function(h){ h.classList.remove('hide'); });
 }
 
 function openAdd() { editId=null; curImgData=null; imgRemoved=false; document.getElementById('add-title').textContent='Neues Rezept'; buildForm(null); sv('add'); }
@@ -1265,6 +1278,21 @@ document.addEventListener('click', function(e){ if(e.target.classList&&e.target.
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2800); }
 
 // ── Pool modal ────────────────────────────────────────────
+
+// ── Mobiler Auto-Hide-Header ────────────────────────────────
+(function(){
+  var lastTop = 0;
+  document.querySelector('.main').addEventListener('scroll', function(e){
+    if (window.innerWidth > 640) return;
+    var top = e.target.scrollTop;
+    var head = document.querySelector('.view.active .view-head');
+    if (head) {
+      if (top > lastTop && top > 40) head.classList.add('hide');
+      else head.classList.remove('hide');
+    }
+    lastTop = top <= 0 ? 0 : top;
+  }, { passive: true });
+})();
 
 // ── Init ─────────────────────────────────────────────────
 buildSidebar();
