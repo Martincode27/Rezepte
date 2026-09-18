@@ -305,8 +305,13 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   .search-row{padding:8px 16px}
   .result-info{padding:0 16px 8px}
   .grid{padding:0 16px 20px;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
-  .view-head{position:sticky;top:0;z-index:5;background:var(--bg);transition:transform .45s cubic-bezier(.4,0,.2,1),opacity .4s ease;will-change:transform,opacity}
-  .view-head.hide{transform:translateY(-100%);opacity:0}
+  .view-head{position:sticky;top:0;z-index:5;background:var(--bg)}
+  .view-head .page-sub,.view-head .filter-bar,.view-head .result-info{transition:max-height .35s ease,opacity .3s ease,margin .35s ease,padding .35s ease;max-height:60px;opacity:1;overflow:hidden}
+  .view-head.compact .page-sub,.view-head.compact .filter-bar,.view-head.compact .result-info{max-height:0;opacity:0;margin:0;padding-top:0;padding-bottom:0}
+  .view-head .topbar{transition:padding .3s ease}
+  .view-head .page-title{transition:font-size .3s ease}
+  .view-head.compact .topbar{padding-top:10px;padding-bottom:0}
+  .view-head.compact .page-title{font-size:17px}
   .form-wrap,.det-wrap,.shop-wrap,.ing-db-wrap{padding:16px}
   .form-row-4{grid-template-columns:1fr 1fr}
   .ing-row{grid-template-columns:1fr 100px 80px 32px}
@@ -619,7 +624,7 @@ function sv(v, skipRender) {
     if (v === 'ingredients') renderIngredientsTab();
   }
   document.querySelector('.main').scrollTop = 0;
-  document.querySelectorAll('.view-head.hide').forEach(function(h){ h.classList.remove('hide'); });
+  document.querySelectorAll('.view-head.compact').forEach(function(h){ h.classList.remove('compact'); });
 }
 
 function openAdd() { editId=null; curImgData=null; imgRemoved=false; document.getElementById('add-title').textContent='Neues Rezept'; buildForm(null); sv('add'); }
@@ -1279,7 +1284,7 @@ function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; 
 
 // ── Pool modal ────────────────────────────────────────────
 
-// ── Mobiler Auto-Hide-Header ────────────────────────────────
+// ── Mobiler Kompakt-Header (Titel+Suche bleiben, Zusatzzeug klappt ein) ────
 (function(){
   var lastTop = 0;
   document.querySelector('.main').addEventListener('scroll', function(e){
@@ -1287,11 +1292,11 @@ function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; 
     var top = e.target.scrollTop;
     var head = document.querySelector('.view.active .view-head');
     if (!head) return;
-    if (top <= 0) { head.classList.remove('hide'); lastTop = 0; return; }
+    if (top <= 0) { head.classList.remove('compact'); lastTop = 0; return; }
     var delta = top - lastTop;
     if (Math.abs(delta) < 6) return; // kleine Zitter-Bewegungen ignorieren
-    if (delta > 0 && top > 40) head.classList.add('hide');
-    else if (delta < 0) head.classList.remove('hide');
+    if (delta > 0 && top > 40) head.classList.add('compact');
+    else if (delta < 0) head.classList.remove('compact');
     lastTop = top;
   }, { passive: true });
 })();
