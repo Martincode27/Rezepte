@@ -182,6 +182,11 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 /* Detail */
 .det-wrap{padding:24px 28px;max-width:640px}
 .det-img{width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:24px;display:block}
+.det-gallery{position:relative;margin-bottom:24px}
+.det-gallery .det-img{margin-bottom:0;cursor:pointer}
+.gallery-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.gallery-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:background .15s}
+.gallery-dot.active{background:var(--ac)}
 .det-hero{display:flex;align-items:flex-start;gap:20px;margin-bottom:24px}
 .det-emoji{font-size:52px;line-height:1;flex-shrink:0}
 .det-info{flex:1}
@@ -514,6 +519,8 @@ function mapRecipe(row) {
       pool: items.filter(function(i){ return i.kind==='pool'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; })
     };
   });
+  var gallery = (row.recipe_images || []).slice().sort(function(a,b){ return a.sort_order - b.sort_order; }).map(function(i){ return i.url; });
+  var images = row.image_url ? [row.image_url].concat(gallery.filter(function(u){ return u!==row.image_url; })) : gallery;
   return {
     id: row.id,
     name: row.name,
@@ -526,6 +533,7 @@ function mapRecipe(row) {
     emoji: row.emoji || '🍽️',
     portions: row.portions || null,
     image: row.image_url || null,
+    images: images,
     videoUrl: row.video_url || null,
     steps: steps
   };
@@ -538,7 +546,7 @@ function setSync(s,t){ document.getElementById('sync-dot').className='dot '+s; d
 function loadAll() {
   setSync('loading','Lädt…');
   return Promise.all([
-    sb('recipes?select=*,recipe_steps(*,recipe_items(*))&recipe_steps.order=step_order.asc&recipe_steps.recipe_items.order=sort_order.asc&order=created_at.desc'),
+    sb('recipes?select=*,recipe_steps(*,recipe_items(*)),recipe_images(*)&recipe_steps.order=step_order.asc&recipe_steps.recipe_items.order=sort_order.asc&recipe_images.order=sort_order.asc&order=created_at.desc'),
     sb('ingredients?select=*&order=name.asc')
   ]).then(function(results) {
     recipes = results[0].map(mapRecipe);
@@ -675,6 +683,28 @@ function renderAll() {
 }
 function lucky() { var list=recipes.filter(matches); if(!list.length) return; openDetail(list[Math.floor(Math.random()*list.length)].id, true); }
 
+// ── Bild-Galerie (Diashow bei mehreren Bildern) ────────────
+var gallery = { images: [], idx: 0, timer: null };
+function stopGallery(){ if (gallery.timer) { clearInterval(gallery.timer); gallery.timer = null; } }
+function showGalleryFrame(){
+  var img = document.getElementById('det-gallery-img');
+  if (!img) { stopGallery(); return; }
+  img.src = gallery.images[gallery.idx];
+  document.querySelectorAll('.gallery-dot').forEach(function(d,i){ d.classList.toggle('active', i===gallery.idx); });
+}
+function gallerySkip(i){ gallery.idx = i; showGalleryFrame(); }
+function galleryNext(){ gallery.idx = (gallery.idx+1) % gallery.images.length; showGalleryFrame(); }
+function renderGalleryHTML(images, name){
+  stopGallery();
+  if (!images.length) return '';
+  if (images.length === 1) return '<img class="det-img" src="'+images[0]+'" alt="'+name+'">';
+  gallery.images = images; gallery.idx = 0;
+  var dots = images.map(function(_,i){ return '<span class="gallery-dot'+(i===0?' active':'')+'" onclick="gallerySkip('+i+')"></span>'; }).join('');
+  gallery.timer = setInterval(galleryNext, 5000);
+  return '<div class="det-gallery"><img class="det-img" id="det-gallery-img" src="'+images[0]+'" alt="'+name+'" onclick="galleryNext()">'
+    +'<div class="gallery-dots">'+dots+'</div></div>';
+}
+
 // ── Detail ────────────────────────────────────────────────
 function openDetail(id, fromLucky) {
   detailFromView = curView;
@@ -744,9 +774,9 @@ function openDetail(id, fromLucky) {
 
   var inShop = shopIds.has(String(r.id));
   var out = (fromLucky?'<div class="lucky-badge">🎲 Zufällig ausgewählt</div>':'')
-    +(r.image?'<img class="det-img" src="'+r.image+'" alt="'+r.name+'">':'')
+    +renderGalleryHTML(r.images||[], r.name)
     +'<div class="det-hero">'
-    +(!r.image?'<div class="det-emoji">'+(r.emoji||'🍽️')+'</div>':'')
+    +(!(r.images&&r.images.length)?'<div class="det-emoji">'+(r.emoji||'🍽️')+'</div>':'')
     +'<div class="det-info"><div class="det-name">'+r.name+'</div>'
     +(r.author?'<div class="det-author">von '+r.author+'</div>':'')
     +'<div class="det-tags">'+cats+diff+prepT+cookT+totT+(r.portions?'<span class="tag tag-time">🍽 '+r.portions+' Port.</span>':'')+'</div>'

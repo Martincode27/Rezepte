@@ -8,8 +8,9 @@
 //   "name": "...", "author": "...", "categories": ["mittagessen", ...],
 //   "difficulty": "leicht|mittel|schwer", "timePrep": 20, "timeCook": 10,
 //   "portions": 4, "emoji": "🍝", "videoUrl": null,
-//   "imagePath": "C:\\...\\foto.jpg",   // lokale Datei, ODER:
-//   "imageUrl": "https://...",          // wird heruntergeladen und nach Supabase Storage kopiert
+//   "images": [{"path": "C:\\...\\foto.jpg"}, {"url": "https://..."}],
+//     // erstes Bild = Titelbild, weitere = Galerie (Diashow in der Detail-Ansicht).
+//     // Kompatibel: "imagePath"/"imageUrl" (ein einzelnes Bild) gehen weiterhin auch.
 //   "steps": [
 //     { "title": "", "instructions": "...",
 //       "ingredients": [{"name": "...", "amount": "...", "hint": ""}],
@@ -53,9 +54,19 @@ async function sb(pathAndQuery, { method = 'GET', body, prefer } = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-async function uploadImage(recipeId, buf, contentType) {
+async function resolveImage(spec) {
+  // spec: {path: "..."} lokale Datei, oder {url: "..."} Download
+  if (spec.path) {
+    return { buf: readFileSync(spec.path), contentType: spec.path.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg' };
+  }
+  const res = await fetch(spec.url);
+  if (!res.ok) throw new Error(`Bild-Download fehlgeschlagen: HTTP ${res.status}`);
+  return { buf: Buffer.from(await res.arrayBuffer()), contentType: res.headers.get('content-type') || 'image/jpeg' };
+}
+
+async function uploadImage(recipeId, suffix, buf, contentType) {
   const ext = contentType.includes('png') ? 'png' : 'jpg';
-  const filename = `${recipeId}.${ext}`;
+  const filename = `${recipeId}${suffix}.${ext}`;
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
     method: 'POST',
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': contentType, 'x-upsert': 'true' },
@@ -90,21 +101,25 @@ async function main() {
   const [recipeRow] = await sb('recipes', { method: 'POST', body: recipeBody, prefer: 'return=representation' });
   console.log(`Rezept angelegt: ${data.name} (${recipeRow.id})`);
 
-  // Bild
-  if (data.imagePath || data.imageUrl) {
-    let buf, contentType;
-    if (data.imagePath) {
-      buf = readFileSync(data.imagePath);
-      contentType = data.imagePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
-    } else {
-      const imgRes = await fetch(data.imageUrl);
-      if (!imgRes.ok) throw new Error(`Bild-Download fehlgeschlagen: HTTP ${imgRes.status}`);
-      buf = Buffer.from(await imgRes.arrayBuffer());
-      contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+  // Bilder: erstes wird Titelbild, weitere gehen in recipe_images (Galerie).
+  // "images": [{"path":"..."}, {"url":"..."}] ODER Kompatibilitaet mit imagePath/imageUrl (ein Bild)
+  const images = data.images || (data.imagePath ? [{ path: data.imagePath }] : data.imageUrl ? [{ url: data.imageUrl }] : []);
+  if (images.length) {
+    const { buf, contentType } = await resolveImage(images[0]);
+    const coverUrl = await uploadImage(recipeRow.id, '', buf, contentType);
+    await sb(`recipes?id=eq.${recipeRow.id}`, { method: 'PATCH', body: { image_url: coverUrl } });
+    console.log(`  Titelbild hochgeladen: ${coverUrl}`);
+
+    if (images.length > 1) {
+      const galleryRows = [];
+      for (let i = 1; i < images.length; i++) {
+        const { buf, contentType } = await resolveImage(images[i]);
+        const url = await uploadImage(recipeRow.id, `-${i}`, buf, contentType);
+        galleryRows.push({ recipe_id: recipeRow.id, url, sort_order: i });
+        console.log(`  Galerie-Bild ${i} hochgeladen: ${url}`);
+      }
+      await sb('recipe_images', { method: 'POST', body: galleryRows, prefer: 'return=minimal' });
     }
-    const imageUrl = await uploadImage(recipeRow.id, buf, contentType);
-    await sb(`recipes?id=eq.${recipeRow.id}`, { method: 'PATCH', body: { image_url: imageUrl } });
-    console.log(`  Bild hochgeladen: ${imageUrl}`);
   }
 
   // Schritte + Zutaten/Gewuerze/Pool

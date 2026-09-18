@@ -110,7 +110,9 @@ function buildMarkdown(r, ingredients) {
 
   let body = `# ${r.name}\n\n`;
   body += `> [!info] Automatisch aus Supabase generiert — nicht hier bearbeiten, Änderungen gehen beim nächsten Export verloren. Bearbeiten über die App: ${APP_URL}\n\n`;
-  if (r.image_url) body += `![${r.name}](${r.image_url})\n\n`;
+  const gallery = (r.recipe_images || []).slice().sort((a, b) => a.sort_order - b.sort_order).map((i) => i.url);
+  const allImages = r.image_url ? [r.image_url, ...gallery.filter((u) => u !== r.image_url)] : gallery;
+  if (allImages.length) body += allImages.map((u) => `![${r.name}](${u})`).join(' ') + '\n\n';
 
   const metaBits = [];
   if (r.difficulty) metaBits.push(`Schwierigkeit: ${r.difficulty}`);
@@ -185,7 +187,7 @@ function syncFolder(dir, files) {
 async function main() {
   const [ingredients, recipes] = await Promise.all([
     sb('ingredients?select=id,name,kcal,protein,carbs,fat'),
-    sb('recipes?select=*,recipe_steps(*,recipe_items(*))&recipe_steps.order=step_order.asc&recipe_steps.recipe_items.order=sort_order.asc&order=name.asc'),
+    sb('recipes?select=*,recipe_steps(*,recipe_items(*)),recipe_images(*)&recipe_steps.order=step_order.asc&recipe_steps.recipe_items.order=sort_order.asc&recipe_images.order=sort_order.asc&order=name.asc'),
   ]);
   console.log(`${recipes.length} Rezepte aus Supabase geladen`);
 
