@@ -305,8 +305,8 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   .search-row{padding:8px 16px}
   .result-info{padding:0 16px 8px}
   .grid{padding:0 16px 20px;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
-  .view-head{position:sticky;top:0;z-index:5;background:var(--bg);transition:transform .25s ease;will-change:transform}
-  .view-head.hide{transform:translateY(-100%)}
+  .view-head{position:sticky;top:0;z-index:5;background:var(--bg);transition:transform .45s cubic-bezier(.4,0,.2,1),opacity .4s ease;will-change:transform,opacity}
+  .view-head.hide{transform:translateY(-100%);opacity:0}
   .form-wrap,.det-wrap,.shop-wrap,.ing-db-wrap{padding:16px}
   .form-row-4{grid-template-columns:1fr 1fr}
   .ing-row{grid-template-columns:1fr 100px 80px 32px}
@@ -1286,11 +1286,13 @@ function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; 
     if (window.innerWidth > 640) return;
     var top = e.target.scrollTop;
     var head = document.querySelector('.view.active .view-head');
-    if (head) {
-      if (top > lastTop && top > 40) head.classList.add('hide');
-      else head.classList.remove('hide');
-    }
-    lastTop = top <= 0 ? 0 : top;
+    if (!head) return;
+    if (top <= 0) { head.classList.remove('hide'); lastTop = 0; return; }
+    var delta = top - lastTop;
+    if (Math.abs(delta) < 6) return; // kleine Zitter-Bewegungen ignorieren
+    if (delta > 0 && top > 40) head.classList.add('hide');
+    else if (delta < 0) head.classList.remove('hide');
+    lastTop = top;
   }, { passive: true });
 })();
 
