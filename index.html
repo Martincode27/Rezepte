@@ -323,6 +323,14 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   .view-head.compact .topbar{padding-top:10px;padding-bottom:0}
   .view-head.compact .page-title{font-size:17px}
   .form-wrap,.det-wrap,.shop-wrap,.ing-db-wrap,.pantry-wrap{padding:16px}
+  .ing-db-hdr{display:none}
+  .ing-db-table{max-width:100%}
+  .ing-db-row{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;padding:12px 14px}
+  .ing-db-name{flex:1 1 100%;order:1}
+  .ing-db-cat{order:2}
+  .ing-db-val{order:3;text-align:left}
+  .ing-db-val::before{content:attr(data-label) ' ';color:var(--hi)}
+  .ing-db-actions{order:4;margin-left:auto}
   .form-row-4{grid-template-columns:1fr 1fr}
   .ing-row{grid-template-columns:1fr 100px 80px 32px}
 }
@@ -1215,10 +1223,10 @@ function renderIngredientsTab(){
     return '<div class="ing-db-row">'
       +'<span class="ing-db-name">'+i.name+'</span>'
       +'<span class="ing-db-cat">'+(i.category||'')+'</span>'
-      +'<span class="ing-db-val">'+(i.kcal||'-')+'</span>'
-      +'<span class="ing-db-val">'+(i.protein||'-')+'</span>'
-      +'<span class="ing-db-val">'+(i.carbs||'-')+'</span>'
-      +'<span class="ing-db-val">'+(i.fat||'-')+'</span>'
+      +'<span class="ing-db-val" data-label="kcal">'+(i.kcal||'-')+'</span>'
+      +'<span class="ing-db-val" data-label="Protein">'+(i.protein||'-')+'</span>'
+      +'<span class="ing-db-val" data-label="KH">'+(i.carbs||'-')+'</span>'
+      +'<span class="ing-db-val" data-label="Fett">'+(i.fat||'-')+'</span>'
       +'<div class="ing-db-actions">'
       +'<button class="btn btn-ghost btn-sm" onclick="openIngEdit(\''+i.id+'\')">✎</button>'
       +'<button class="btn btn-danger btn-sm" onclick="delIng(\''+i.id+'\')">✕</button>'
