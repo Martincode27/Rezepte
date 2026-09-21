@@ -1011,6 +1011,15 @@ function addNewIng(el, name) {
 }
 
 // ── Vorräte ("Was habe ich zuhause?") ──────────────────────
+function pantrySuggestions(){
+  return recipes.map(function(r){ return {r:r, m:pantryMatch(r)}; })
+    .filter(function(x){ return x.m.have>0; })
+    .sort(function(a,b){
+      var pa=a.m.total?a.m.have/a.m.total:0, pb=b.m.total?b.m.have/b.m.total:0;
+      if (pb!==pa) return pb-pa;
+      return b.m.have-a.m.have;
+    });
+}
 function renderPantryTab(){
   document.getElementById('pantry-sub').textContent = pantryItems.length+' Zutat'+(pantryItems.length!==1?'en':'')+' vorrätig';
   var wrap = document.getElementById('pantry-wrap');
@@ -1018,7 +1027,12 @@ function renderPantryTab(){
   var pills = pantryItems.slice().sort(function(a,b){ return a.name.localeCompare(b.name,'de'); }).map(function(p){
     return '<div class="pantry-pill">'+p.name+'<button onclick="removePantryItem(\''+p.id+'\')">×</button></div>';
   }).join('');
-  wrap.innerHTML = '<div class="pantry-pills">'+pills+'</div>';
+  var sugg = pantrySuggestions();
+  var suggHtml = '<div class="form-sec" style="margin-top:24px">Rezeptvorschläge — nach Übereinstimmung sortiert</div>';
+  suggHtml += sugg.length
+    ? '<div class="grid" style="padding:0">'+sugg.map(function(x){ return cardHTML(x.r); }).join('')+'</div>'
+    : '<div style="color:var(--hi);padding:10px 0">Noch keine Übereinstimmungen mit deinen Vorräten</div>';
+  wrap.innerHTML = '<div class="pantry-pills">'+pills+'</div>'+suggHtml;
 }
 function searchPantryIngs(inp){
   var q = inp.value.trim().toLowerCase();
