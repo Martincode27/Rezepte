@@ -139,3 +139,9 @@ Ziel: robusteres Backend, einfacherer Rezept-Import, neue Planungs-Features.
   (Supabase bleibt führend, Entscheidung 2026-09-17) — Skript überschreibt bei jedem Lauf und räumt
   verwaiste Dateien auf. Läuft aktuell nur manuell, nicht automatisch nach jeder Änderung (siehe
   Backlog). `00_Start.md` im Vault zu einem kurzen Architektur-Überblick aufgeräumt.
+
+### 2026-09-23 — Session 3 (Cloud-Session)
+- Keine Änderungen an der Rezepte-App. Session für ein neues Projekt genutzt: **Cockpit**
+  (persönliches Dashboard für alle Projekte), eigenes privates Repo `Martincode27/Cockpit`.
+- Für das Rezeptbuch relevant: Das Cockpit soll später die Rezeptanzahl und die neuen Rezepte der
+  Woche anzeigen (liest `recipes.created_at`). Dafür reicht die bestehende offene Lese-Policy.
