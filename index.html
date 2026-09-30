@@ -565,7 +565,7 @@ function mapRecipe(row) {
     return {
       title: s.title || '',
       steps: s.instructions || '',
-      ingredients: items.filter(function(i){ return i.kind==='ingredient'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', hint:i.hint||''}; }),
+      ingredients: items.filter(function(i){ return i.kind==='ingredient'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', hint:i.hint||'', ingredientId:i.ingredient_id||null}; }),
       spices: items.filter(function(i){ return i.kind==='spice'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; }),
       pool: items.filter(function(i){ return i.kind==='pool'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; })
     };
@@ -698,7 +698,8 @@ function updateTime() { maxTime=parseInt(document.getElementById('t-slider').val
 function normCat(c) { if(Array.isArray(c)) return c; if(typeof c==='string'){ var t=c.trim(); if(t.startsWith('[')){ try{return JSON.parse(t);}catch(e){} } return t?[t]:[]; } return []; }
 function getSteps(r) { return (r && Array.isArray(r.steps))?r.steps:[]; }
 function allIngNames(r) { var n=[]; getSteps(r).forEach(function(s){ (s.ingredients||[]).forEach(function(i){ n.push(typeof i==='string'?i:i.name); }); }); return n; }
-function findIng(name) { return ingredients.find(function(i){ return i.name.toLowerCase()===name.toLowerCase(); }); }
+function findIng(name) { var b=baseName(name); return ingredients.find(function(i){ return baseName(i.name)===b; }); }
+function findIngById(id) { return ingredients.find(function(i){ return i.id===id; }); }
 
 // ── Filter ────────────────────────────────────────────────
 function matches(r) {
@@ -804,7 +805,7 @@ function openDetail(id, fromLucky) {
     (s.ingredients||[]).forEach(function(i){
       var n=typeof i==='string'?i:i.name;
       var a=typeof i==='string'?'':(i.amount||'');
-      var db=findIng(n);
+      var db=(i.ingredientId&&findIngById(i.ingredientId))||findIng(n);
       if (!db||!db.kcal) { missingNutr=true; return; }
       var grams=parseFloat(String(a).match(/^([\d.,]+)/)||0)*1;
       if (String(a).toLowerCase().includes('ml')) grams=grams;
