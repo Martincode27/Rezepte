@@ -342,7 +342,12 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 <div class="layout">
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="logo"><span style="font-size:22px">🍽️</span><span class="logo-t">Unsere Rezepte</span></div>
+    <div class="logo"><span style="font-size:22px">🍽️</span><span class="logo-t">Unsere Rezepte</span>
+      <!-- Zurück ins persönliche Cockpit: nur sichtbar, wenn auf diesem Gerät eine Cockpit-Anmeldung gespeichert ist
+           (gleiche Adresse martincode27.github.io -> gleicher localStorage). Für alle anderen bleibt die App unverändert. -->
+      <a id="cockpit-back" href="/Cockpit/" style="display:none;margin-left:auto;font-size:12px;font-weight:600;text-decoration:none;color:var(--ac);border:1px solid var(--b1);border-radius:8px;padding:4px 9px;white-space:nowrap" title="Zurück zum Cockpit">◆ Cockpit</a>
+      <script>try{ if(localStorage.getItem("cockpit_session")) document.getElementById("cockpit-back").style.display = "inline-flex"; }catch(e){}</script>
+    </div>
     <!-- Mobile nav -->
     <div class="mob-nav" id="mob-nav"></div>
     <!-- Desktop nav -->
