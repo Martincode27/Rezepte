@@ -818,6 +818,7 @@ function openDetail(id, fromLucky) {
     var n=typeof i==='string'?i:i.name;
     var a=typeof i==='string'?'':(i.amount||'');
     var db=(i.ingredientId&&findIngById(i.ingredientId))||findIng(n);
+    if (db&&!db.kcal&&/^(mineral)?wasser$/.test(baseName(n))) return; // Wasser: 0 kcal ist ein echter Wert, kein fehlender
     if (!db||!db.kcal) { missingNutr=true; return; }
     var grams=parseFloat(String(a).match(/^([\d.,]+)/)||0)*1;
     if (!grams) { missingNutr=true; return; }
