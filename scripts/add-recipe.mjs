@@ -15,7 +15,7 @@
 //     { "title": "", "instructions": "...",
 //       "ingredients": [{"name": "...", "amount": "...", "hint": ""}],
 //       "spices": [{"name": "...", "amount": ""}],
-//       "pool": [{"name": "...", "amount": ""}] }
+//       "pool": [{"name": "...", "amount": "", "example": true}] }  // example:true = Teil der Beispielvariante fuer die Naehrwerte
 //   ]
 // }
 //
@@ -131,9 +131,9 @@ async function main() {
       prefer: 'return=representation',
     });
     const items = [];
-    (s.ingredients || []).forEach((i, n) => items.push({ step_id: stepRow.id, name_raw: i.name, amount: i.amount || null, hint: i.hint || null, kind: 'ingredient', optional: false, sort_order: n }));
-    (s.spices || []).forEach((sp, n) => items.push({ step_id: stepRow.id, name_raw: sp.name, amount: sp.amount || null, hint: null, kind: 'spice', optional: false, sort_order: n }));
-    (s.pool || []).forEach((p, n) => items.push({ step_id: stepRow.id, name_raw: p.name, amount: p.amount || null, hint: null, kind: 'pool', optional: true, sort_order: n }));
+    (s.ingredients || []).forEach((i, n) => items.push({ step_id: stepRow.id, name_raw: i.name, amount: i.amount || null, hint: i.hint || null, kind: 'ingredient', optional: false, in_example: false, sort_order: n }));
+    (s.spices || []).forEach((sp, n) => items.push({ step_id: stepRow.id, name_raw: sp.name, amount: sp.amount || null, hint: null, kind: 'spice', optional: false, in_example: false, sort_order: n }));
+    (s.pool || []).forEach((p, n) => items.push({ step_id: stepRow.id, name_raw: p.name, amount: p.amount || null, hint: null, kind: 'pool', optional: true, in_example: !!p.example, sort_order: n }));
     if (items.length) await sb('recipe_items', { method: 'POST', body: items, prefer: 'return=minimal' });
     console.log(`  Schritt ${idx + 1} gespeichert (${items.length} Zeilen)`);
   }

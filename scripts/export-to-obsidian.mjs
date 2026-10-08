@@ -54,7 +54,7 @@ function calcNutrition(recipe, ingredients) {
   let kcal = 0, protein = 0, carbs = 0, fat = 0, complete = true, any = false;
   for (const step of recipe.recipe_steps) {
     for (const item of step.recipe_items) {
-      if (item.kind !== 'ingredient') continue;
+      if (item.kind !== 'ingredient' && !(item.kind === 'pool' && item.in_example)) continue;
       const db = findIng(ingredients, item.name_raw);
       const grams = parseFloat(String(item.amount || '').match(/^([\d.,]+)/)?.[0]?.replace(',', '.') || '');
       if (!db || !db.kcal || !grams) { complete = false; continue; }
@@ -83,7 +83,7 @@ function yamlList(arr) {
 
 function itemLines(items) {
   return items
-    .map((i) => `- ${i.name_raw}${i.amount ? ` — ${i.amount}` : ''}${i.hint ? ` (${i.hint})` : ''}`)
+    .map((i) => `- ${i.name_raw}${i.amount ? ` — ${i.amount}` : ''}${i.hint ? ` (${i.hint})` : ''}${i.in_example ? ' ✓ Beispielvariante' : ''}`)
     .join('\n');
 }
 

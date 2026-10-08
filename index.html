@@ -151,7 +151,10 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .ing-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
 .ing-row{display:grid;grid-template-columns:1fr 130px 100px 32px;gap:6px;align-items:center}
 .spice-row{display:grid;grid-template-columns:1fr 130px 32px;gap:6px;align-items:center}
-.pool-row{display:grid;grid-template-columns:1fr 130px 32px;gap:6px;align-items:center}
+.pool-row{display:grid;grid-template-columns:1fr 100px 84px 32px;gap:6px;align-items:center}
+.ex-chk{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu);cursor:pointer;user-select:none}
+.ex-chk input{accent-color:var(--ac)}
+.pool-pill.ex{border-style:solid;border-color:var(--ac);color:var(--ac)}
 .fi-sm{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 10px;color:var(--tx);font-size:13px;font-family:var(--fn);outline:none;transition:border-color .15s;width:100%}
 .fi-sm:focus{border-color:var(--b2)}
 .fi-sm::placeholder{color:var(--hi)}
@@ -333,6 +336,7 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
   .ing-db-actions{order:4;margin-left:auto}
   .form-row-4{grid-template-columns:1fr 1fr}
   .ing-row{grid-template-columns:1fr 100px 80px 32px}
+  .pool-row{grid-template-columns:1fr 64px 74px 30px}
 }
 @media(min-width:641px){.mob-nav{display:none}}
 </style>
@@ -490,7 +494,7 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 <!-- POOL MODAL -->
 <div class="modal-bg" id="pool-modal">
   <div class="pool-modal">
-    <h3>Was kommt heute rein?</h3><div class="pool-sub">Wähle aus dem optionalen Pool</div>
+    <h3>Was kommt heute rein?</h3><div class="pool-sub">Welche optionalen Zutaten willst du heute dabeihaben?</div>
     <div id="pool-body"></div>
     <div class="pool-modal-actions"><button class="btn btn-ghost" onclick="cm('pool-modal')">Abbrechen</button><button class="btn btn-primary" onclick="confirmPool()">Zur Einkaufsliste</button></div>
   </div>
@@ -526,7 +530,7 @@ var editId = null, detailFromView = 'discover', curImgData = null, imgRemoved = 
 var stepCount = 0;
 var shopIds = new Set(), shopWeekItems = [], shopSingleItems = [], shopSingleRecipe = null;
 var curTab = 'total', isSingleShop = false;
-var poolSteps = [], poolRecipeId = null;
+var poolSteps = [], poolRecipeId = null, poolBtn = null, shopPoolSel = {};
 var editIngId = null;
 
 // ── API (Supabase: PostgREST für Tabellen, Storage API für Bilder) ────────
@@ -572,7 +576,7 @@ function mapRecipe(row) {
       steps: s.instructions || '',
       ingredients: items.filter(function(i){ return i.kind==='ingredient'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', hint:i.hint||'', ingredientId:i.ingredient_id||null}; }),
       spices: items.filter(function(i){ return i.kind==='spice'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; }),
-      pool: items.filter(function(i){ return i.kind==='pool'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; })
+      pool: items.filter(function(i){ return i.kind==='pool'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', example:!!i.in_example, ingredientId:i.ingredient_id||null}; })
     };
   });
   var gallery = (row.recipe_images || []).slice().sort(function(a,b){ return a.sort_order - b.sort_order; }).map(function(i){ return i.url; });
@@ -805,21 +809,23 @@ function openDetail(id, fromLucky) {
   var totT = (r.time&&(r.timePrep||r.timeCook)) ? '<span class="tag tag-time">⏱ '+r.time+' Min</span>' : (!r.timePrep&&!r.timeCook?'<span class="tag tag-time">'+clk+(r.time||'?')+' Min</span>':'');
 
   // Nutrition calculation
-  var totalKcal=0, totalProt=0, totalCarb=0, totalFat=0, missingNutr=false;
+  var totalKcal=0, totalProt=0, totalCarb=0, totalFat=0, missingNutr=false, exampleNames=[];
+  function addNutr(i){
+    var n=typeof i==='string'?i:i.name;
+    var a=typeof i==='string'?'':(i.amount||'');
+    var db=(i.ingredientId&&findIngById(i.ingredientId))||findIng(n);
+    if (!db||!db.kcal) { missingNutr=true; return; }
+    var grams=parseFloat(String(a).match(/^([\d.,]+)/)||0)*1;
+    if (!grams) { missingNutr=true; return; }
+    totalKcal += db.kcal*grams/100;
+    totalProt += db.protein*grams/100;
+    totalCarb += db.carbs*grams/100;
+    totalFat  += db.fat*grams/100;
+  }
   steps.forEach(function(s){
-    (s.ingredients||[]).forEach(function(i){
-      var n=typeof i==='string'?i:i.name;
-      var a=typeof i==='string'?'':(i.amount||'');
-      var db=(i.ingredientId&&findIngById(i.ingredientId))||findIng(n);
-      if (!db||!db.kcal) { missingNutr=true; return; }
-      var grams=parseFloat(String(a).match(/^([\d.,]+)/)||0)*1;
-      if (String(a).toLowerCase().includes('ml')) grams=grams;
-      if (!grams) { missingNutr=true; return; }
-      totalKcal += db.kcal*grams/100;
-      totalProt += db.protein*grams/100;
-      totalCarb += db.carbs*grams/100;
-      totalFat  += db.fat*grams/100;
-    });
+    (s.ingredients||[]).forEach(addNutr);
+    // Beispielvariante: optionale Zutaten, die beim Eintragen fuer die Naehrwerte markiert wurden
+    (s.pool||[]).forEach(function(p){ if (p.example) { exampleNames.push(p.name); addNutr(p); } });
   });
   var nutrHTML = '';
   if (totalKcal > 0) {
@@ -830,7 +836,8 @@ function openDetail(id, fromLucky) {
       +'<div class="nutr-cell"><div class="nutr-val">'+Math.round(totalProt/port*10)/10+'g</div><div class="nutr-lbl">Protein</div></div>'
       +'<div class="nutr-cell"><div class="nutr-val">'+Math.round(totalCarb/port*10)/10+'g</div><div class="nutr-lbl">Kohlenhydrate</div></div>'
       +'<div class="nutr-cell"><div class="nutr-val">'+Math.round(totalFat/port*10)/10+'g</div><div class="nutr-lbl">Fett</div></div>'
-      +'</div>'+(missingNutr?'<div class="nutr-note">* Nicht alle Zutaten haben Nährwerte eingetragen</div>':'');
+      +'</div>'+(exampleNames.length?'<div class="nutr-note">Beispielvariante inkl. '+exampleNames.join(', ')+'</div>':'')
+      +(missingNutr?'<div class="nutr-note">* Nicht alle Zutaten haben Nährwerte eingetragen</div>':'');
   }
 
   // Steps HTML
@@ -847,12 +854,12 @@ function openDetail(id, fromLucky) {
     var spPills = '';
     (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); spPills+='<span class="spice-pill">🧂 '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+'</span>'; });
     var poolPills = '';
-    (s.pool||[]).forEach(function(p){ var n=typeof p==='string'?p:p.name; poolPills+='<span class="pool-pill">✦ '+n+'</span>'; });
+    (s.pool||[]).forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); poolPills+='<span class="pool-pill'+(p.example?' ex':'')+'">✦ '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+(p.example?' <span title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</span>'; });
     var title = steps.length>1 ? '<div class="det-step-title"><span class="det-step-num">Schritt '+(idx+1)+'</span>'+(hasTitle?' '+s.title:'')+'</div>' : (hasTitle?'<div class="det-step-title">'+s.title+'</div>':'');
     stepsHTML += '<div class="det-step">'+title
       +(ingRows?'<div class="ing-table" style="margin-bottom:10px">'+ingRows+'</div>':'')
       +(spPills?'<div class="spice-pills" style="margin-bottom:10px">'+spPills+'</div>':'')
-      +(poolPills?'<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--hi);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Optional</div><div class="pool-pills">'+poolPills+'</div></div>':'')
+      +(poolPills?'<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--hi);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Optional'+((s.pool||[]).some(function(p){return p.example;})?' · ✓ = Beispielvariante für die Nährwerte':'')+'</div><div class="pool-pills">'+poolPills+'</div></div>':'')
       +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
       +'</div>';
   });
@@ -984,7 +991,7 @@ function buildIngRow(i) {
   var n=(i.name||'').replace(/"/g,'&quot;');
   var a=(i.amount||'').replace(/"/g,'&quot;');
   var h=(i.hint||'').replace(/"/g,'&quot;');
-  return '<div class="ing-row">'
+  return '<div class="ing-row" data-iid="'+(i.ingredientId||'')+'" data-iname="'+n+'">'
     +'<div class="ing-search-wrap"><input class="fi-sm ing-name-inp" type="text" placeholder="Zutat suchen…" value="'+n+'" oninput="searchIngs(this)" onfocus="searchIngs(this)" onblur="setTimeout(function(){closeIngDd(document.activeElement)},200)" autocomplete="off"><div class="ing-dd"></div></div>'
     +'<input class="fi-sm ing-amt-inp" type="text" placeholder="Menge" value="'+a+'">'
     +'<input class="fi-sm ing-hint-inp" type="text" placeholder="Hinweis (opt.)" value="'+h+'">'
@@ -996,7 +1003,11 @@ function buildSpiceRow(sp) {
 }
 function buildPoolRow(p) {
   var n=(p.name||'').replace(/"/g,'&quot;'); var a=(p.amount||'').replace(/"/g,'&quot;');
-  return '<div class="pool-row"><input class="fi-sm ing-name-inp" type="text" placeholder="z.B. Tomate" value="'+n+'"><input class="fi-sm ing-amt-inp" type="text" placeholder="Menge (opt.)" value="'+a+'"><button class="rm-btn" onclick="this.closest(\'.pool-row\').remove()">×</button></div>';
+  return '<div class="pool-row" data-iid="'+(p.ingredientId||'')+'" data-iname="'+n+'">'
+    +'<div class="ing-search-wrap"><input class="fi-sm ing-name-inp" type="text" placeholder="Optionale Zutat suchen…" value="'+n+'" oninput="searchIngs(this)" onfocus="searchIngs(this)" onblur="setTimeout(function(){closeIngDd(document.activeElement)},200)" autocomplete="off"><div class="ing-dd"></div></div>'
+    +'<input class="fi-sm ing-amt-inp" type="text" placeholder="Menge" value="'+a+'">'
+    +'<label class="ex-chk" title="In der Beispielvariante für die Nährwerte einrechnen"><input type="checkbox" class="pool-ex"'+(p.example?' checked':'')+'> Beispiel</label>'
+    +'<button class="rm-btn" onclick="this.closest(\'.pool-row\').remove()">×</button></div>';
 }
 
 // Ingredient search in form
@@ -1097,12 +1108,13 @@ function addIngRow(btn) { var w=btn.previousElementSibling; var d=document.creat
 function addSpiceRow(btn) { var w=btn.previousElementSibling; var d=document.createElement('div'); d.innerHTML=buildSpiceRow({name:'',amount:''}); w.appendChild(d.firstChild); }
 function addPoolRow(btn) { var w=btn.previousElementSibling; var d=document.createElement('div'); d.innerHTML=buildPoolRow({name:'',amount:''}); w.appendChild(d.firstChild); }
 
+function keepIid(row){ var nm=row.querySelector('.ing-name-inp').value.trim(); return (row.dataset.iid&&row.dataset.iname===nm)?row.dataset.iid:null; }
 function collectSteps() {
   var blocks=Array.from(document.querySelectorAll('.step-block')); var multi=blocks.length>1;
   return blocks.map(function(b){
-    var ings=Array.from(b.querySelectorAll('.step-ings .ing-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim(),hint:r.querySelector('.ing-hint-inp').value.trim()}; }).filter(function(i){return i.name;});
+    var ings=Array.from(b.querySelectorAll('.step-ings .ing-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim(),hint:r.querySelector('.ing-hint-inp').value.trim(),ingredientId:keepIid(r)}; }).filter(function(i){return i.name;});
     var spices=Array.from(b.querySelectorAll('.step-spices .spice-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim()}; }).filter(function(i){return i.name;});
-    var pool=Array.from(b.querySelectorAll('.step-pool .pool-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim()}; }).filter(function(i){return i.name;});
+    var pool=Array.from(b.querySelectorAll('.step-pool .pool-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim(),example:r.querySelector('.pool-ex').checked,ingredientId:keepIid(r)}; }).filter(function(i){return i.name;});
     var stepsText=multi?(b.querySelector('.step-txt').value.trim()):(document.getElementById('f-steps').value.trim());
     return {title:b.querySelector('.step-title-inp').value.trim(),ingredients:ings,spices:spices,pool:pool,steps:stepsText};
   });
@@ -1195,9 +1207,10 @@ async function saveRecipe(){
       var stepRows = await sb('recipe_steps', {method:'POST', body:{recipe_id:recipeRow.id, step_order:idx, title:s.title||null, instructions:s.steps||null}, prefer:'return=representation'});
       var stepId = stepRows[0].id;
       var items = [];
-      s.ingredients.forEach(function(i,n){ items.push({step_id:stepId, name_raw:i.name, amount:i.amount||null, hint:i.hint||null, kind:'ingredient', optional:false, sort_order:n}); });
-      s.spices.forEach(function(sp,n){ items.push({step_id:stepId, name_raw:sp.name, amount:sp.amount||null, hint:null, kind:'spice', optional:false, sort_order:n}); });
-      s.pool.forEach(function(p,n){ items.push({step_id:stepId, name_raw:p.name, amount:p.amount||null, hint:null, kind:'pool', optional:true, sort_order:n}); });
+      function lnk(x){ if (x.ingredientId) return x.ingredientId; var f=findIng(x.name); return f?f.id:null; }
+      s.ingredients.forEach(function(i,n){ items.push({step_id:stepId, ingredient_id:lnk(i), name_raw:i.name, amount:i.amount||null, hint:i.hint||null, kind:'ingredient', optional:false, in_example:false, sort_order:n}); });
+      s.spices.forEach(function(sp,n){ items.push({step_id:stepId, ingredient_id:lnk(sp), name_raw:sp.name, amount:sp.amount||null, hint:null, kind:'spice', optional:false, in_example:false, sort_order:n}); });
+      s.pool.forEach(function(p,n){ items.push({step_id:stepId, ingredient_id:lnk(p), name_raw:p.name, amount:p.amount||null, hint:null, kind:'pool', optional:true, in_example:!!p.example, sort_order:n}); });
       if (items.length) await sb('recipe_items', {method:'POST', body:items, prefer:'return=minimal'});
     }
 
@@ -1287,12 +1300,15 @@ function updateShopBadge(){ var b=document.getElementById('shop-badge'); if(!b)r
 
 function toggleShop(id, btn){
   var sid=String(id);
-  if(shopIds.has(sid)){shopIds.delete(sid);btn.textContent='+ Einkaufsliste';btn.className='btn btn-primary';}
-  else{shopIds.add(sid);btn.textContent='✓ In Einkaufsliste';btn.className='btn btn-ghost';}
+  if(shopIds.has(sid)){shopIds.delete(sid);delete shopPoolSel[sid];btn.textContent='+ Einkaufsliste';btn.className='btn btn-primary';updateShopBadge();return;}
+  var r=recipes.find(function(x){return String(x.id)===sid;});
+  var steps=r?getSteps(r):[];
+  if(steps.some(function(s){return (s.pool||[]).length>0;})){ poolSteps=steps; poolRecipeId=sid; poolBtn=btn; openPoolModal(); return; }
+  shopIds.add(sid);btn.textContent='✓ In Einkaufsliste';btn.className='btn btn-ghost';
   updateShopBadge();
 }
 
-function clearShop(){ shopIds.clear(); shopWeekItems=[]; updateShopBadge(); sv('discover'); toast('Einkaufsliste geleert'); }
+function clearShop(){ shopIds.clear(); shopPoolSel={}; shopWeekItems=[]; updateShopBadge(); sv('discover'); toast('Einkaufsliste geleert'); }
 function switchTab(tab, el){ curTab=tab; document.querySelectorAll('.shop-tab').forEach(function(t){t.classList.remove('active');}); if(el) el.classList.add('active'); renderShopTab(); }
 
 function buildWeekItems(){
@@ -1303,6 +1319,7 @@ function buildWeekItems(){
       (s.ingredients||[]).forEach(function(i){ var n=typeof i==='string'?i:i.name; var a=typeof i==='string'?'':(i.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,recipeId:id,recipeName:r.name}); });
       (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,recipeId:id,recipeName:r.name}); });
     });
+    (shopPoolSel[id]||[]).forEach(function(p){ if(p.name) shopWeekItems.push({name:p.name.trim(),amount:(p.amount||'').trim(),checked:false,recipeId:id,recipeName:r.name}); });
   });
 }
 
@@ -1371,9 +1388,12 @@ function openPoolModal(){
 }
 
 function confirmPool(){
-  var r=recipes.find(function(x){return String(x.id)===poolRecipeId;}); var sel={};
-  document.querySelectorAll('.pool-chip.on').forEach(function(c){ var si=c.dataset.step; if(!sel[si]) sel[si]=[]; sel[si].push(parseInt(c.dataset.i)); });
-  cm('pool-modal'); buildSingleShop(r,poolSteps,sel);
+  var picked=[];
+  document.querySelectorAll('.pool-chip.on').forEach(function(c){ var p=(poolSteps[parseInt(c.dataset.step)].pool||[])[parseInt(c.dataset.i)]; if(p) picked.push({name:p.name,amount:p.amount||''}); });
+  shopIds.add(poolRecipeId); shopPoolSel[poolRecipeId]=picked;
+  if(poolBtn){ poolBtn.textContent='✓ In Einkaufsliste'; poolBtn.className='btn btn-ghost'; }
+  cm('pool-modal'); updateShopBadge();
+  toast(picked.length?picked.length+' optionale Zutat'+(picked.length!==1?'en':'')+' mit drauf':'Ohne optionale Zutaten hinzugefügt');
 }
 
 function buildSingleShop(r,steps,selPool){
