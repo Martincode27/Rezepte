@@ -155,6 +155,10 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .ex-chk{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu);cursor:pointer;user-select:none}
 .ex-chk input{accent-color:var(--ac)}
 .pool-pill.ex{border-style:solid;border-color:var(--ac);color:var(--ac)}
+.ing-opt-hdr{padding:8px 14px 4px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--hi);border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02)}
+.ing-opt-hdr span{text-transform:none;letter-spacing:0;margin-left:6px}
+.ing-tr.opt .ing-name{color:var(--mu)}
+.ing-ex{color:var(--gn);font-size:12px;font-weight:500}
 .fi-sm{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 10px;color:var(--tx);font-size:13px;font-family:var(--fn);outline:none;transition:border-color .15s;width:100%}
 .fi-sm:focus{border-color:var(--b2)}
 .fi-sm::placeholder{color:var(--hi)}
@@ -853,13 +857,15 @@ function openDetail(id, fromLucky) {
     });
     var spPills = '';
     (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); spPills+='<span class="spice-pill">🧂 '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+'</span>'; });
-    var poolPills = '';
-    (s.pool||[]).forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); poolPills+='<span class="pool-pill'+(p.example?' ex':'')+'">✦ '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+(p.example?' <span title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</span>'; });
+    var poolItems = s.pool||[];
+    if (poolItems.length) {
+      ingRows += '<div class="ing-opt-hdr">Optional'+(poolItems.some(function(p){return p.example;})?' <span>✓ = Beispielvariante für die Nährwerte</span>':'')+'</div>';
+      poolItems.forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); ingRows += '<div class="ing-tr opt"><span class="ing-name">'+n+'</span><div class="ing-right">'+(a?'<span class="ing-amt">'+a+'</span>':'')+(p.example?'<span class="ing-ex" title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</div></div>'; });
+    }
     var title = steps.length>1 ? '<div class="det-step-title"><span class="det-step-num">Schritt '+(idx+1)+'</span>'+(hasTitle?' '+s.title:'')+'</div>' : (hasTitle?'<div class="det-step-title">'+s.title+'</div>':'');
     stepsHTML += '<div class="det-step">'+title
       +(ingRows?'<div class="ing-table" style="margin-bottom:10px">'+ingRows+'</div>':'')
       +(spPills?'<div class="spice-pills" style="margin-bottom:10px">'+spPills+'</div>':'')
-      +(poolPills?'<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--hi);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Optional'+((s.pool||[]).some(function(p){return p.example;})?' · ✓ = Beispielvariante für die Nährwerte':'')+'</div><div class="pool-pills">'+poolPills+'</div></div>':'')
       +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
       +'</div>';
   });
