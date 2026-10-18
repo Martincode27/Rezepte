@@ -231,8 +231,16 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .det-step{margin-bottom:14px}
 .det-step-title{font-family:var(--fs);font-size:18px;font-weight:700;color:var(--tx);padding:14px 16px 12px;display:flex;align-items:center;gap:12px}
 .det-step-num{width:30px;height:30px;border-radius:50%;background:var(--ad);color:var(--ac);display:grid;place-items:center;font-family:var(--fs);font-weight:800;font-size:15px;flex-shrink:0}
+.det-dur{margin-left:auto;font-family:var(--fn);font-size:13px;font-weight:500;color:var(--mu);white-space:nowrap}
+.det-step-name{min-width:0}
+.step-ings-box{border-top:1px solid var(--b1);background:rgba(255,255,255,0.015)}
+.step-ings-box .ing-tr{padding:9px 16px;font-size:14px}
+.step-ings-box .ing-amt{font-size:14px}
+.step-dur-inp{width:64px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:5px 8px;color:var(--tx);font-size:12px;font-family:var(--fn);outline:none}
 .det-card .steps-text{border-top:1px solid var(--b1);background:rgba(255,255,255,0.02)}
 .det-card .det-step-title+.steps-text{border-top:0}
+.det-card .det-step-title+.step-ings-box{border-top:0}
+.det-card>.steps-text:first-child{border-top:0}
 .det-actions{display:flex;gap:10px;margin-top:24px}
 /* Nutrition */
 .nutrition-bar{display:flex;gap:0;background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:6px}
@@ -242,30 +250,38 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .nutr-lbl{font-size:12px;color:var(--mu);margin-top:2px}
 .nutr-note{font-size:12px;color:var(--mu);text-align:right}
 /* Shopping list */
-.shop-wrap{padding:0 28px 28px;max-width:560px}
-.shop-tabs{display:flex;gap:0;border-bottom:1px solid var(--b1);margin-bottom:20px}
-.shop-tab{padding:10px 18px;font-size:13px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+.shop-wrap{padding:14px 28px 40px;width:100%;max-width:720px;margin:0 auto}
+.shop-tabs{display:flex;gap:6px;margin:4px 0 18px}
+.shop-tab{padding:7px 16px;font-size:14px;font-weight:600;color:var(--mu);cursor:pointer;border-radius:999px;border:1px solid var(--b1);background:var(--s1);transition:all .15s;user-select:none}
 .shop-tab:hover{color:var(--tx)}
-.shop-tab.active{color:var(--ac);border-bottom-color:var(--ac)}
-.shop-recipe-sec{margin-bottom:24px}
-.shop-recipe-title{font-family:var(--fs);font-size:14px;font-weight:500;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.shop-recipe-title span{font-size:12px;color:var(--mu);font-family:var(--fn);font-weight:400}
-.shop-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:var(--s1);border:1px solid var(--b1);margin-bottom:7px;cursor:pointer;transition:all .15s;user-select:none}
-.shop-item:hover{border-color:var(--b2)}
-.shop-item.done{background:var(--s2);border-color:var(--b1);opacity:.5}
-.shop-chk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.shop-tab.active{color:#1a1510;background:var(--ac);border-color:var(--ac)}
+.shop-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.shop-count{font-family:var(--fs);font-size:20px;font-weight:800}
+.shop-count small{font-family:var(--fn);font-size:13px;font-weight:500;color:var(--mu);margin-left:6px}
+.shop-hide-btn{font:inherit;font-size:13px;font-weight:600;padding:6px 13px;border-radius:999px;border:1px solid var(--b2);background:var(--s1);color:var(--tx);cursor:pointer}
+.shop-hide-btn.on{background:var(--ac);border-color:var(--ac);color:#1a1510}
+.shop-bar{height:6px;background:var(--b2);border-radius:999px;overflow:hidden;margin-bottom:22px}
+.shop-fill{height:100%;background:var(--ac);border-radius:999px;transition:width .25s}
+.shop-group{margin-bottom:18px}
+.shop-group h3{margin:0 0 6px 2px;font-family:var(--fn);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:600}
+.shop-list{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
+.shop-item{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.shop-item:first-child{border-top:0}
+.shop-item:hover{background:rgba(255,255,255,0.03)}
+.shop-chk{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--b2);display:flex;align-items:center;justify-content:center;transition:all .15s}
 .shop-item.done .shop-chk{background:var(--ac);border-color:var(--ac)}
-.shop-chk svg{width:11px;height:11px;color:#1a1510;opacity:0;transition:opacity .15s}
+.shop-chk svg{width:13px;height:13px;color:#1a1510;opacity:0;transition:opacity .15s}
 .shop-item.done .shop-chk svg{opacity:1}
-.shop-iname{flex:1;font-size:14px;color:var(--tx);transition:all .15s}
-.shop-item.done .shop-iname{text-decoration:line-through;color:var(--hi)}
-.shop-iamt{font-size:12px;color:var(--ac);font-weight:500}
+.shop-iname{min-width:0;font-size:15px;color:var(--tx);line-height:1.3}
+.shop-iname small{display:block;font-size:12.5px;color:var(--mu)}
+.shop-item.done .shop-iname span{text-decoration:line-through;color:var(--hi)}
+.shop-item.done .shop-iname small{color:var(--hi)}
+.shop-iamt{font-size:15px;color:var(--ac);font-weight:600;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
 .shop-item.done .shop-iamt{color:var(--hi)}
-.shop-meta{font-size:12px;color:var(--mu);margin-bottom:14px}
-.shop-prog{display:flex;align-items:center;gap:10px;margin-bottom:20px;font-size:12px;color:var(--mu)}
-.shop-bar{flex:1;height:3px;background:var(--b2);border-radius:2px;overflow:hidden}
-.shop-fill{height:100%;background:var(--ac);border-radius:2px;transition:width .3s}
-.shop-sec-lbl{font-size:11px;letter-spacing:.07em;color:var(--hi);text-transform:uppercase;margin:16px 0 8px}
+.shop-allset{text-align:center;padding:16px;border-radius:16px;background:var(--gnd);color:var(--gn);font-weight:600}
+.shop-recipe-sec{margin-bottom:22px}
+.shop-recipe-title{font-family:var(--fs);font-size:18px;font-weight:800;color:var(--tx);margin-bottom:8px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.shop-recipe-title span{font-size:13px;color:var(--mu);font-family:var(--fn);font-weight:500}
 .shop-actions{display:flex;gap:10px;margin-top:24px}
 .sugg-card{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s;margin-bottom:10px}
 .sugg-card:hover{border-color:var(--b2);background:var(--s2)}
@@ -539,7 +555,7 @@ var activeCat = 'alle', maxTime = 120, curView = 'discover', onlyPantry = false;
 var editId = null, detailFromView = 'discover', curImgData = null, imgRemoved = false;
 var stepCount = 0;
 var shopIds = new Set(), shopWeekItems = [], shopSingleItems = [], shopSingleRecipe = null;
-var curTab = 'total', isSingleShop = false;
+var curTab = 'total', isSingleShop = false, shopHide = false;
 var poolSteps = [], poolRecipeId = null, poolBtn = null, shopPoolSel = {};
 var editIngId = null;
 
@@ -578,12 +594,19 @@ async function uploadImage(dataUrl) {
 
 // Supabase-Rezeptzeile (mit eingebetteten Schritten/Items) -> altes In-Memory-Format,
 // damit die restliche Render-/Formular-Logik unten unveraendert bleiben kann.
+var hasDurationCol = false; // true, sobald die Spalte recipe_steps.duration_min (Migration 0007) existiert
+function fmtDur(m, long) {
+  if (m >= 60) { var h=Math.floor(m/60), r=m%60; return (long?'':'≈ ')+h+' Std.'+(r?' '+r+' Min.':''); }
+  return (long?'':'≈ ')+m+' Min.';
+}
 function mapRecipe(row) {
   var steps = (row.recipe_steps || []).slice().sort(function(a,b){ return a.step_order - b.step_order; }).map(function(s) {
+    if ('duration_min' in s) hasDurationCol = true;
     var items = (s.recipe_items || []).slice().sort(function(a,b){ return a.sort_order - b.sort_order; });
     return {
       title: s.title || '',
       steps: s.instructions || '',
+      duration: s.duration_min || null,
       ingredients: items.filter(function(i){ return i.kind==='ingredient'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', hint:i.hint||'', ingredientId:i.ingredient_id||null}; }),
       spices: items.filter(function(i){ return i.kind==='spice'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||''}; }),
       pool: items.filter(function(i){ return i.kind==='pool'; }).map(function(i){ return {name:i.name_raw, amount:i.amount||'', example:!!i.in_example, ingredientId:i.ingredient_id||null}; })
@@ -850,8 +873,43 @@ function openDetail(id, fromLucky) {
       +(missingNutr?'<div class="nutr-note">* Nicht alle Zutaten haben Nährwerte eingetragen</div>':'');
   }
 
-  // Steps HTML
+  // Gesamte Zutatenliste (oben) + Schritte mit ihren zugehoerigen Zutaten (unten)
+  function ingRowHTML(n,a,hint,opt,ex){
+    return '<div class="ing-tr'+(opt?' opt':'')+'"><div class="ing-main"><span class="ing-name">'+n+'</span>'+(hint?'<span class="ing-hint">'+hint+'</span>':'')+'</div>'
+      +((a||ex)?'<div class="ing-right">'+(a?'<span class="ing-amt">'+a+'</span>':'')+(ex?'<span class="ing-ex" title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</div>':'')+'</div>';
+  }
+  function pillsHTML(list){
+    return list.map(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); return '<span class="spice-pill">🧂 '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+'</span>'; }).join('');
+  }
+  function mergeList(list){
+    var map={}, order=[];
+    list.forEach(function(i){
+      var n=typeof i==='string'?i:i.name; if(!n) return;
+      var a=typeof i==='string'?'':(i.amount||''); var h=typeof i==='object'?(i.hint||''):''; var ex=typeof i==='object'&&!!i.example;
+      var k=baseName(n);
+      if(!map[k]){ map[k]={name:n,amount:a,hint:h,ex:ex}; order.push(k); }
+      else { var m=map[k]; m.amount=combineAmt(m.amount,a); if(h&&m.hint.indexOf(h)<0) m.hint=m.hint?m.hint+'; '+h:h; if(ex) m.ex=true; }
+    });
+    return order.map(function(k){return map[k];});
+  }
+  var allIngs=[], allSpices=[], allPool=[];
+  steps.forEach(function(s){ allIngs=allIngs.concat(s.ingredients||[]); allSpices=allSpices.concat(s.spices||[]); allPool=allPool.concat(s.pool||[]); });
+  var mIngs=mergeList(allIngs), mSpices=mergeList(allSpices), mPool=mergeList(allPool);
+  var topRows='';
+  mIngs.forEach(function(i){ topRows+=ingRowHTML(i.name,i.amount,i.hint,false,false); });
+  if (mPool.length) {
+    topRows+='<div class="ing-opt-hdr">Optional'+(mPool.some(function(p){return p.ex;})?' <span>✓ = Beispielvariante für die Nährwerte</span>':'')+'</div>';
+    mPool.forEach(function(p){ topRows+=ingRowHTML(p.name,p.amount,'',true,p.ex); });
+  }
+  var topHTML='';
+  if (topRows||mSpices.length) {
+    topHTML='<div class="det-sec">Zutaten<small>'+(mIngs.length+mPool.length)+' Zutaten'+(r.portions?' · '+r.portions+' Port.':'')+'</small></div>'
+      +'<div class="det-card">'+(topRows?'<div class="ing-table">'+topRows+'</div>':'')
+      +(mSpices.length?'<div class="spice-pills">'+pillsHTML(mSpices)+'</div>':'')+'</div>';
+  }
+
   var stepsHTML = '';
+  var totalDur = 0;
   steps.forEach(function(s, idx) {
     var hasTitle = s.title && s.title.trim();
     var ingRows = '';
@@ -859,28 +917,23 @@ function openDetail(id, fromLucky) {
       var n=typeof i==='string'?i:i.name;
       var a=typeof i==='string'?'':(i.amount||'');
       var hint=typeof i==='object'?(i.hint||''):'';
-      ingRows += '<div class="ing-tr"><div class="ing-main"><span class="ing-name">'+n+'</span>'+(hint?'<span class="ing-hint">'+hint+'</span>':'')+'</div>'+(a?'<span class="ing-amt">'+a+'</span>':'')+'</div>';
+      ingRows += ingRowHTML(n,a,hint,false,false);
     });
-    var spPills = '';
-    (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); spPills+='<span class="spice-pill">🧂 '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+'</span>'; });
     var poolItems = s.pool||[];
     if (poolItems.length) {
-      ingRows += '<div class="ing-opt-hdr">Optional'+(poolItems.some(function(p){return p.example;})?' <span>✓ = Beispielvariante für die Nährwerte</span>':'')+'</div>';
-      poolItems.forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); ingRows += '<div class="ing-tr opt"><div class="ing-main"><span class="ing-name">'+n+'</span></div><div class="ing-right">'+(a?'<span class="ing-amt">'+a+'</span>':'')+(p.example?'<span class="ing-ex" title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</div></div>'; });
+      ingRows += '<div class="ing-opt-hdr">Optional</div>';
+      poolItems.forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); ingRows += ingRowHTML(n,a,'',true,p.example); });
     }
-    var spHTML = spPills?'<div class="spice-pills">'+spPills+'</div>':'';
-    if (steps.length>1) {
-      var title = '<div class="det-step-title"><span class="det-step-num">'+(idx+1)+'</span>'+(hasTitle?s.title:'Schritt '+(idx+1))+'</div>';
-      stepsHTML += '<div class="det-step"><div class="det-card">'+title
-        +(ingRows?'<div class="ing-table">'+ingRows+'</div>':'')+spHTML
-        +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
-        +'</div></div>';
-    } else {
-      // Ein einziger Schritt: Zutaten und Zubereitung als zwei getrennte Bloecke
-      if (ingRows||spHTML) stepsHTML += '<div class="det-sec">Zutaten</div><div class="det-card"><div class="ing-table">'+ingRows+'</div>'+spHTML+'</div>';
-      if (s.steps) stepsHTML += '<div class="det-sec">Zubereitung</div><div class="det-card"><div class="steps-text">'+s.steps+'</div></div>';
-    }
+    var spHTML = (s.spices||[]).length?'<div class="spice-pills">'+pillsHTML(s.spices)+'</div>':'';
+    var dur = s.duration?'<span class="det-dur">⏱ '+fmtDur(s.duration)+'</span>':'';
+    totalDur += s.duration||0;
+    var head = (steps.length>1||hasTitle||dur) ? '<div class="det-step-title">'+(steps.length>1?'<span class="det-step-num">'+(idx+1)+'</span>':'')+'<span class="det-step-name">'+(hasTitle?s.title:(steps.length>1?'Schritt '+(idx+1):''))+'</span>'+dur+'</div>' : '';
+    stepsHTML += '<div class="det-step"><div class="det-card">'+head
+      +((ingRows||spHTML)?'<div class="step-ings-box">'+(ingRows?'<div class="ing-table">'+ingRows+'</div>':'')+spHTML+'</div>':'')
+      +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
+      +'</div></div>';
   });
+  stepsHTML = stepsHTML ? '<div class="det-sec">Zubereitung<small>'+(steps.length>1?steps.length+' Schritte':'')+(totalDur&&steps.length>1?' · ca. '+fmtDur(totalDur,true):'')+'</small></div>'+stepsHTML : '';
 
   var inShop = shopIds.has(String(r.id));
   var out = (fromLucky?'<div class="lucky-badge">🎲 Zufällig ausgewählt</div>':'')
@@ -892,7 +945,7 @@ function openDetail(id, fromLucky) {
     +'<div class="det-tags">'+diff+prepT+cookT+totT+(r.portions?'<span class="tag tag-time">🍽 '+r.portions+' Port.</span>':'')+'</div>'
     +'</div></div>'
     +nutrHTML
-    +(stepsHTML?(steps.length>1?'<div class="det-sec">Zubereitung<small>'+steps.length+' Schritte</small></div>':'')+stepsHTML:'')
+    +topHTML+stepsHTML
     +'<div class="det-actions">'
     +'<button class="btn btn-ghost" onclick="sv(\''+detailFromView+'\')">← Zurück</button>'
     +'<button class="btn'+(inShop?' btn-ghost':' btn-primary')+'" id="shop-tog-btn" onclick="toggleShop(\''+r.id+'\',this)">'+(inShop?'✓ In Einkaufsliste':'+ Einkaufsliste')+'</button>'
@@ -989,6 +1042,7 @@ function buildStepBlock(s, idx) {
   return '<div class="step-block" data-step="'+n+'">'
     +'<div class="step-hdr"><span class="step-num">Schritt '+n+'</span>'
     +'<input class="step-title-inp" type="text" placeholder="z.B. Teig, Belag…" value="'+(s.title||'')+'">'
+    +(hasDurationCol?'<input class="step-dur-inp" type="number" min="0" placeholder="Min" title="Dauer in Minuten" value="'+(s.duration||'')+'">':'')
     +'<button class="step-rm" onclick="removeStep(this)">×</button></div>'
     +'<div class="step-body">'
     +'<div><div class="step-lbl">Zutaten</div>'
@@ -1134,7 +1188,8 @@ function collectSteps() {
     var spices=Array.from(b.querySelectorAll('.step-spices .spice-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim()}; }).filter(function(i){return i.name;});
     var pool=Array.from(b.querySelectorAll('.step-pool .pool-row')).map(function(r){ return {name:r.querySelector('.ing-name-inp').value.trim(),amount:r.querySelector('.ing-amt-inp').value.trim(),example:r.querySelector('.pool-ex').checked,ingredientId:keepIid(r)}; }).filter(function(i){return i.name;});
     var stepsText=multi?(b.querySelector('.step-txt').value.trim()):(document.getElementById('f-steps').value.trim());
-    return {title:b.querySelector('.step-title-inp').value.trim(),ingredients:ings,spices:spices,pool:pool,steps:stepsText};
+    var durEl=b.querySelector('.step-dur-inp');
+    return {title:b.querySelector('.step-title-inp').value.trim(),duration:durEl?(parseInt(durEl.value)||null):null,ingredients:ings,spices:spices,pool:pool,steps:stepsText};
   });
 }
 function pickDiff(el){ document.querySelectorAll('.diff-chip').forEach(function(c){c.classList.remove('on');}); el.classList.add('on'); }
@@ -1222,7 +1277,7 @@ async function saveRecipe(){
     var steps = collectSteps();
     for (var idx=0; idx<steps.length; idx++) {
       var s = steps[idx];
-      var stepRows = await sb('recipe_steps', {method:'POST', body:{recipe_id:recipeRow.id, step_order:idx, title:s.title||null, instructions:s.steps||null}, prefer:'return=representation'});
+      var stepRows = await sb('recipe_steps', {method:'POST', body:Object.assign({recipe_id:recipeRow.id, step_order:idx, title:s.title||null, instructions:s.steps||null}, hasDurationCol?{duration_min:s.duration||null}:{}), prefer:'return=representation'});
       var stepId = stepRows[0].id;
       var items = [];
       function lnk(x){ if (x.ingredientId) return x.ingredientId; var f=findIng(x.name); return f?f.id:null; }
@@ -1335,7 +1390,7 @@ function buildWeekItems(){
     var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return;
     getSteps(r).forEach(function(s){
       (s.ingredients||[]).forEach(function(i){ var n=typeof i==='string'?i:i.name; var a=typeof i==='string'?'':(i.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,recipeId:id,recipeName:r.name}); });
-      (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,recipeId:id,recipeName:r.name}); });
+      (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,spice:true,recipeId:id,recipeName:r.name}); });
     });
     (shopPoolSel[id]||[]).forEach(function(p){ if(p.name) shopWeekItems.push({name:p.name.trim(),amount:(p.amount||'').trim(),checked:false,recipeId:id,recipeName:r.name}); });
   });
@@ -1350,19 +1405,40 @@ function getMerged(){
   shopWeekItems.forEach(function(item){
     var b=baseName(item.name); if(!b) return;
     if(g[b]){ g[b].amount=combineAmt(g[b].amount,item.amount); if(item.checked) g[b].checked=true; var v=item.name.match(/\(([^)]+)\)/); if(v&&g[b].variants.indexOf(v[1])<0) g[b].variants.push(v[1]); }
-    else{ var v=item.name.match(/\(([^)]+)\)/); g[b]={name:item.name.replace(/\s*\(.*?\)/,'').trim(),amount:item.amount,checked:item.checked,variants:v?[v[1]]:[]}; }
+    else{ var v=item.name.match(/\(([^)]+)\)/); g[b]={name:item.name.replace(/\s*\(.*?\)/,'').trim(),amount:item.amount,checked:item.checked,spice:!!item.spice,variants:v?[v[1]]:[]}; }
   });
   return Object.values(g).map(function(i){ if(i.variants.length) i.name=i.name+' ('+i.variants.join(', ')+')'; return i; }).sort(function(a,b){return a.name.localeCompare(b.name,'de');});
 }
 
+var AISLES=[['Obst & Gemüse',['Obst','Gemüse']],['Fleisch & Fisch',['Fleisch','Fisch']],['Kühlregal',['Milchprodukte']],['Nudeln, Reis & Backwaren',['Getreide','Hülsenfrüchte']],['Vorrat',['Öle & Fette','Nüsse & Samen','Sonstiges']],['Gewürze & Kräuter',['Gewürze']]];
+function aisleOf(item){
+  var db=findIng(item.name), cat=db&&db.category;
+  if (cat) { for (var i=0;i<AISLES.length;i++) if (AISLES[i][1].indexOf(cat)>=0) return AISLES[i][0]; }
+  return item.spice?'Gewürze & Kräuter':'Vorrat';
+}
+var CHK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
 function shopItemRow(item, onclick){
   var cls=item.checked?' done':'';
-  var amt=item.amount?'<span class="shop-iamt">'+item.amount+'</span>':'';
-  var chk='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+  var amt=item.amount?'<span class="shop-iamt">'+item.amount+'</span>':'<span></span>';
   return '<div class="shop-item'+cls+'" onclick="'+onclick+'">'
-    +'<div class="shop-chk">'+chk+'</div>'
-    +'<span class="shop-iname">'+item.name+'</span>'+amt+'</div>';
+    +'<div class="shop-chk">'+CHK_SVG+'</div>'
+    +'<div class="shop-iname"><span>'+item.name+'</span>'+(item.optional?'<small>optional</small>':'')+'</div>'+amt+'</div>';
 }
+function shopSummaryHTML(items){
+  var total=items.length, done=items.filter(function(i){return i.checked;}).length, pct=total?Math.round(done/total*100):0;
+  return '<div class="shop-top"><div class="shop-count">'+done+' von '+total+'<small>erledigt</small></div>'
+    +'<button class="shop-hide-btn'+(shopHide?' on':'')+'" onclick="toggleShopHide()">Nur offene zeigen</button></div>'
+    +'<div class="shop-bar"><div class="shop-fill" style="width:'+pct+'%"></div></div>';
+}
+function shopGroupsHTML(items, onclickFn){
+  var groups={};
+  items.forEach(function(it,idx){ if (shopHide&&it.checked) return; var a=aisleOf(it); (groups[a]=groups[a]||[]).push(shopItemRow(it,onclickFn(it,idx))); });
+  var out='';
+  AISLES.forEach(function(a){ if (groups[a[0]]) out+='<div class="shop-group"><h3>'+a[0]+'</h3><div class="shop-list">'+groups[a[0]].join('')+'</div></div>'; });
+  if (!out&&items.length) out='<div class="shop-allset">Alles erledigt 🎉</div>';
+  return out;
+}
+function toggleShopHide(){ shopHide=!shopHide; if (isSingleShop) renderSingleShop(); else renderShopTab(); }
 
 function toggleWeekItem(b){
   var cur=shopWeekItems.find(function(i){return baseName(i.name)===b;}); if(!cur) return;
@@ -1371,14 +1447,11 @@ function toggleWeekItem(b){
 
 function renderShopTab(){
   var el=document.getElementById('shop-content'); if(!el) return;
-  var chkSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
   if(curTab==='total'){
-    var merged=getMerged(); var total=merged.length,done=merged.filter(function(i){return i.checked;}).length,pct=total?Math.round(done/total*100):0;
-    var rows=''; merged.forEach(function(item){ var b=baseName(item.displayName||item.name).replace(/"/g,'&quot;'); rows+=shopItemRow(item,'toggleWeekItem(\"'+b+'\")'); });
-    el.innerHTML='<div class="shop-meta">'+total+' Zutaten · '+done+' erledigt</div>'
-      +'<div class="shop-prog"><div class="shop-bar"><div class="shop-fill" style="width:'+pct+'%"></div></div>'+pct+'%</div>'+rows;
+    var merged=getMerged();
+    el.innerHTML=shopSummaryHTML(merged)+shopGroupsHTML(merged,function(item){ return 'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'; });
   } else if(curTab==='byrecipe'){
-    var out=''; shopIds.forEach(function(id){ var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return; var items=shopWeekItems.filter(function(i){return i.recipeId===id;}),done=items.filter(function(i){return i.checked;}).length; out+='<div class="shop-recipe-sec"><div class="shop-recipe-title">'+(r.emoji||'🍽️')+' '+r.name+'<span>'+done+'/'+items.length+'</span></div>'; items.forEach(function(item){ var b=baseName(item.name).replace(/"/g,'&quot;'); out+=shopItemRow(item,'toggleWeekItem(\"'+b+'\")'); }); out+='</div>'; }); el.innerHTML=out||'<div style="color:var(--hi);padding:20px 0">Keine Gerichte ausgewählt</div>';
+    var out=''; shopIds.forEach(function(id){ var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return; var items=shopWeekItems.filter(function(i){return i.recipeId===id;}),done=items.filter(function(i){return i.checked;}).length; var rows=''; items.forEach(function(item){ if (shopHide&&item.checked) return; rows+=shopItemRow(item,'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'); }); out+='<div class="shop-recipe-sec"><div class="shop-recipe-title"><div>'+(r.emoji||'🍽️')+' '+r.name+'</div><span>'+done+'/'+items.length+'</span></div>'+(rows?'<div class="shop-list">'+rows+'</div>':'')+'</div>'; }); el.innerHTML=(shopIds.size?shopSummaryHTML(shopWeekItems):'')+(out||'<div style="color:var(--hi);padding:20px 0">Keine Gerichte ausgewählt</div>');
   } else {
     var weekIngs=new Set(shopWeekItems.map(function(i){return baseName(i.name);}));
     var suggs=recipes.filter(function(r){return !shopIds.has(String(r.id));}).map(function(r){
@@ -1418,24 +1491,19 @@ function buildSingleShop(r,steps,selPool){
   var raw=[];
   steps.forEach(function(s,si){
     (s.ingredients||[]).forEach(function(i){ var n=typeof i==='string'?i:i.name; var a=typeof i==='string'?'':(i.amount||''); if(n) raw.push({name:n.trim(),amount:a.trim(),optional:false}); });
-    (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) raw.push({name:n.trim(),amount:a.trim(),optional:false}); });
+    (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) raw.push({name:n.trim(),amount:a.trim(),optional:false,spice:true}); });
     (selPool[si]||[]).forEach(function(idx){ var p=(s.pool||[])[idx]; if(!p) return; var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); if(n) raw.push({name:n.trim(),amount:a.trim(),optional:true}); });
   });
   var groups={};
-  raw.forEach(function(item){ var b=baseName(item.name); if(!b) return; if(groups[b]){groups[b].amount=combineAmt(groups[b].amount,item.amount);}else{groups[b]={name:item.name.replace(/\s*\(.*?\)/,'').trim(),amount:item.amount,optional:item.optional,checked:false};} });
+  raw.forEach(function(item){ var b=baseName(item.name); if(!b) return; if(groups[b]){groups[b].amount=combineAmt(groups[b].amount,item.amount);}else{groups[b]={name:item.name.replace(/\s*\(.*?\)/,'').trim(),amount:item.amount,optional:item.optional,spice:!!item.spice,checked:false};} });
   shopSingleItems=Object.values(groups).sort(function(a,b){return a.name.localeCompare(b.name,'de');}); shopSingleRecipe=r;
   renderSingleShop(); document.getElementById('shop-tabs').style.display='none'; document.getElementById('shop-sub').textContent=r.name;
   isSingleShop=true; sv('shop');
 }
 
 function renderSingleShop(){
-  var items=shopSingleItems; var total=items.length,done=items.filter(function(i){return i.checked;}).length,pct=total?Math.round(done/total*100):0;
-  var mand=items.filter(function(i){return !i.optional;}),opt=items.filter(function(i){return i.optional;});
-  var chk='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
-  function row(item,idx){ var cls=item.checked?' done':''; var amt=item.amount?'<span class="shop-iamt">'+item.amount+'</span>':''; return '<div class="shop-item'+cls+'" onclick="toggleSingleItem('+idx+')">'+'<div class="shop-chk">'+chk+'</div><span class="shop-iname">'+item.name+'</span>'+amt+'</div>'; }
-  var out='<div class="shop-meta">'+total+' Zutaten · '+done+' erledigt</div>'+'<div class="shop-prog"><div class="shop-bar"><div class="shop-fill" style="width:'+pct+'%"></div></div>'+pct+'%</div>';
-  if(mand.length){out+='<div class="shop-sec-lbl">Zutaten</div>'; mand.forEach(function(it){out+=row(it,items.indexOf(it));});}
-  if(opt.length){out+='<div class="shop-sec-lbl">Optional (ausgewählt)</div>'; opt.forEach(function(it){out+=row(it,items.indexOf(it));});}
+  var items=shopSingleItems;
+  var out=shopSummaryHTML(items)+shopGroupsHTML(items,function(it,idx){ return 'toggleSingleItem('+idx+')'; });
   out+='<div class="shop-actions"><button class="btn btn-ghost" onclick="sv(\''+detailFromView+'\')">← Zurück</button></div>';
   document.getElementById('shop-content').innerHTML=out;
 }

@@ -136,7 +136,9 @@ function buildMarkdown(r, ingredients) {
     const sp = items.filter((i) => i.kind === 'spice');
     const pool = items.filter((i) => i.kind === 'pool');
 
-    if (multi) body += `## Schritt ${idx + 1}${s.title ? `: ${s.title}` : ''}\n\n`;
+    const dm = s.duration_min;
+    const dur = dm ? ` (≈ ${dm >= 60 ? `${Math.floor(dm / 60)} Std.${dm % 60 ? ` ${dm % 60} Min.` : ''}` : `${dm} Min.`})` : '';
+    if (multi) body += `## Schritt ${idx + 1}${s.title ? `: ${s.title}` : ''}${dur}\n\n`;
     else if (s.title) body += `## ${s.title}\n\n`;
 
     if (ing.length) body += `**Zutaten**\n${itemLines(ing)}\n\n`;
