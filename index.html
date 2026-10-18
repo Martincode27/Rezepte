@@ -278,6 +278,15 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .shop-item.done .shop-iname small{color:var(--hi)}
 .shop-iamt{font-size:15px;color:var(--ac);font-weight:600;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
 .shop-item.done .shop-iamt{color:var(--hi)}
+.shop-port-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--b1)}
+.shop-port-row:first-child{border-top:0}
+.shop-port-name{min-width:0;font-size:15px;line-height:1.3}
+.shop-port-name small{display:block;font-size:12.5px;color:var(--mu)}
+.shop-port-inline{display:flex;align-items:center;justify-content:space-between;margin:-2px 0 8px;font-size:13px;color:var(--mu)}
+.shop-stepper{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.shop-stepper button{width:36px;height:36px;border-radius:10px;border:1px solid var(--b2);background:var(--s2);color:var(--tx);font-size:20px;line-height:1;cursor:pointer}
+.shop-stepper button:hover{border-color:var(--ac);color:var(--ac)}
+.shop-stepper output{min-width:34px;text-align:center;font-family:var(--fs);font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
 .shop-allset{text-align:center;padding:16px;border-radius:16px;background:var(--gnd);color:var(--gn);font-weight:600}
 .shop-recipe-sec{margin-bottom:22px}
 .shop-recipe-title{font-family:var(--fs);font-size:18px;font-weight:800;color:var(--tx);margin-bottom:8px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
@@ -1373,7 +1382,7 @@ function updateShopBadge(){ var b=document.getElementById('shop-badge'); if(!b)r
 
 function toggleShop(id, btn){
   var sid=String(id);
-  if(shopIds.has(sid)){shopIds.delete(sid);delete shopPoolSel[sid];btn.textContent='+ Einkaufsliste';btn.className='btn btn-primary';updateShopBadge();return;}
+  if(shopIds.has(sid)){shopIds.delete(sid);delete shopPoolSel[sid];delete shopPortions[sid];btn.textContent='+ Einkaufsliste';btn.className='btn btn-primary';updateShopBadge();return;}
   var r=recipes.find(function(x){return String(x.id)===sid;});
   var steps=r?getSteps(r):[];
   if(steps.some(function(s){return (s.pool||[]).length>0;})){ poolSteps=steps; poolRecipeId=sid; poolBtn=btn; openPoolModal(); return; }
@@ -1381,19 +1390,73 @@ function toggleShop(id, btn){
   updateShopBadge();
 }
 
-function clearShop(){ shopIds.clear(); shopPoolSel={}; shopWeekItems=[]; updateShopBadge(); sv('discover'); toast('Einkaufsliste geleert'); }
+function clearShop(){ shopIds.clear(); shopPoolSel={}; shopPortions={}; shopWeekItems=[]; updateShopBadge(); sv('discover'); toast('Einkaufsliste geleert'); }
 function switchTab(tab, el){ curTab=tab; document.querySelectorAll('.shop-tab').forEach(function(t){t.classList.remove('active');}); if(el) el.classList.add('active'); renderShopTab(); }
 
+var shopPortions = {}; // Rezept-ID -> Portionen, fuer die eingekauft wird
+var FRAC_CH = {'½':0.5,'¼':0.25,'¾':0.75,'⅓':1/3,'⅔':2/3};
+function numFracStr(v){
+  var q=Math.round(v*4)/4, w=Math.floor(q+1e-9), r=q-w, f=r>=0.75?'¾':r>=0.5?'½':r>=0.25?'¼':'';
+  return (w||!f?String(w):'')+f;
+}
+// Menge skalieren: fuehrende Zahl (auch 1½, 1/2, 1-2) wird mit f multipliziert, Rest bleibt
+function scaleAmt(a, f){
+  a=String(a||''); if (!a||Math.abs(f-1)<1e-9) return a;
+  var rng=a.match(/^(\d+(?:[.,]\d+)?)\s*[-–]\s*(\d+(?:[.,]\d+)?)\s*(.*)$/);
+  if (rng) return numFracStr(parseFloat(rng[1].replace(',','.'))*f)+'–'+numFracStr(parseFloat(rng[2].replace(',','.'))*f)+(rng[3]?' '+rng[3]:'');
+  var fr=a.match(/^(\d+)\/(\d+)\s*(.*)$/);
+  if (fr) return fmtScaled(parseInt(fr[1])/parseInt(fr[2])*f, fr[3], true);
+  var m=a.match(/^(\d+(?:[.,]\d+)?)?\s*([½¼¾⅓⅔])?\s*(.*)$/);
+  if (!m||(!m[1]&&!m[2])) return a;
+  var num=(m[1]?parseFloat(m[1].replace(',','.')):0)+(m[2]?FRAC_CH[m[2]]:0);
+  return fmtScaled(num*f, m[3], /^[\d.,½¼¾⅓⅔]+\s+\S/.test(a));
+}
+function fmtScaled(v, rest, hasSp){
+  var unit=(rest||'').trim().toLowerCase();
+  if (unit==='g'||unit==='ml'||unit==='kg'||unit==='l') {
+    var r=v>=100?Math.round(v/5)*5:(v>=10?Math.round(v):Math.round(v*10)/10);
+    return String(r).replace('.',',')+(hasSp?' ':'')+rest.trim();
+  }
+  return numFracStr(v)+(rest?(' '+rest.trim()):'');
+}
+function scaleName(n, f){
+  if (Math.abs(f-1)<1e-9) return n;
+  return n.replace(/\((\d+(?:[.,]\d+)?|\d+\/\d+)\s+(Stück|Stck\.?|Zehen|Zehe|Bund|Scheiben)\)/, function(_,num,unit){
+    var v=num.indexOf('/')>0?parseInt(num)/parseInt(num.split('/')[1]):parseFloat(num.replace(',','.'));
+    var x=numFracStr(v*f); var u=unit; if (x==='1'&&u==='Zehen') u='Zehe'; if (x!=='1'&&u==='Zehe') u='Zehen';
+    return '('+x+' '+u+')';
+  });
+}
+function shopFactor(r){ var base=r.portions||1; return (shopPortions[String(r.id)]||base)/base; }
 function buildWeekItems(){
+  var prevChecked={};
+  shopWeekItems.forEach(function(i){ if (i.checked) prevChecked[i.recipeId+'|'+baseName(i.name)]=true; });
   shopWeekItems=[];
   shopIds.forEach(function(id){
     var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return;
+    var f=shopFactor(r);
+    function add(n,a,spice){ if(!n) return; var nm=scaleName(n.trim(),f); shopWeekItems.push({name:nm,amount:scaleAmt(a.trim(),f),checked:!!prevChecked[id+'|'+baseName(nm)],spice:!!spice,recipeId:id,recipeName:r.name}); }
     getSteps(r).forEach(function(s){
-      (s.ingredients||[]).forEach(function(i){ var n=typeof i==='string'?i:i.name; var a=typeof i==='string'?'':(i.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,recipeId:id,recipeName:r.name}); });
-      (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); if(n) shopWeekItems.push({name:n.trim(),amount:a.trim(),checked:false,spice:true,recipeId:id,recipeName:r.name}); });
+      (s.ingredients||[]).forEach(function(i){ add(typeof i==='string'?i:i.name, typeof i==='string'?'':(i.amount||''), false); });
+      (s.spices||[]).forEach(function(sp){ add(typeof sp==='string'?sp:sp.name, typeof sp==='string'?'':(sp.amount||''), true); });
     });
-    (shopPoolSel[id]||[]).forEach(function(p){ if(p.name) shopWeekItems.push({name:p.name.trim(),amount:(p.amount||'').trim(),checked:false,recipeId:id,recipeName:r.name}); });
+    (shopPoolSel[id]||[]).forEach(function(p){ add(p.name, p.amount||'', false); });
   });
+}
+function setShopPortions(id, delta){
+  var r=recipes.find(function(x){return String(x.id)===String(id);}); if(!r) return;
+  var cur=shopPortions[String(id)]||r.portions||1;
+  shopPortions[String(id)]=Math.max(1,Math.min(40,cur+delta));
+  buildWeekItems(); renderShopTab();
+}
+function shopStepperHTML(r){
+  var n=shopPortions[String(r.id)]||r.portions||1;
+  return '<div class="shop-stepper"><button onclick="event.stopPropagation();setShopPortions(\''+r.id+'\',-1)" aria-label="Eine Portion weniger">−</button><output>'+n+'</output><button onclick="event.stopPropagation();setShopPortions(\''+r.id+'\',1)" aria-label="Eine Portion mehr">+</button></div>';
+}
+function shopPortionsHTML(){
+  var rows=''; shopIds.forEach(function(id){ var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return;
+    rows+='<div class="shop-port-row"><div class="shop-port-name">'+(r.emoji||'🍽️')+' '+r.name+(r.portions?'<small>Rezept ist für '+r.portions+' Port.</small>':'')+'</div>'+shopStepperHTML(r)+'</div>'; });
+  return rows?'<div class="shop-group"><h3>Portionen</h3><div class="shop-list">'+rows+'</div></div>':'';
 }
 
 function baseName(n){ return n.toLowerCase().replace(/\s*\(.*?\)/g,'').trim(); }
@@ -1449,9 +1512,9 @@ function renderShopTab(){
   var el=document.getElementById('shop-content'); if(!el) return;
   if(curTab==='total'){
     var merged=getMerged();
-    el.innerHTML=shopSummaryHTML(merged)+shopGroupsHTML(merged,function(item){ return 'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'; });
+    el.innerHTML=shopPortionsHTML()+shopSummaryHTML(merged)+shopGroupsHTML(merged,function(item){ return 'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'; });
   } else if(curTab==='byrecipe'){
-    var out=''; shopIds.forEach(function(id){ var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return; var items=shopWeekItems.filter(function(i){return i.recipeId===id;}),done=items.filter(function(i){return i.checked;}).length; var rows=''; items.forEach(function(item){ if (shopHide&&item.checked) return; rows+=shopItemRow(item,'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'); }); out+='<div class="shop-recipe-sec"><div class="shop-recipe-title"><div>'+(r.emoji||'🍽️')+' '+r.name+'</div><span>'+done+'/'+items.length+'</span></div>'+(rows?'<div class="shop-list">'+rows+'</div>':'')+'</div>'; }); el.innerHTML=(shopIds.size?shopSummaryHTML(shopWeekItems):'')+(out||'<div style="color:var(--hi);padding:20px 0">Keine Gerichte ausgewählt</div>');
+    var out=''; shopIds.forEach(function(id){ var r=recipes.find(function(x){return String(x.id)===id;}); if(!r) return; var items=shopWeekItems.filter(function(i){return i.recipeId===id;}),done=items.filter(function(i){return i.checked;}).length; var rows=''; items.forEach(function(item){ if (shopHide&&item.checked) return; rows+=shopItemRow(item,'toggleWeekItem(\''+baseName(item.name).replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')'); }); out+='<div class="shop-recipe-sec"><div class="shop-recipe-title"><div>'+(r.emoji||'🍽️')+' '+r.name+'</div><span>'+done+'/'+items.length+'</span></div><div class="shop-port-inline"><span>Portionen</span>'+shopStepperHTML(r)+'</div>'+(rows?'<div class="shop-list">'+rows+'</div>':'')+'</div>'; }); el.innerHTML=(shopIds.size?shopSummaryHTML(shopWeekItems):'')+(out||'<div style="color:var(--hi);padding:20px 0">Keine Gerichte ausgewählt</div>');
   } else {
     var weekIngs=new Set(shopWeekItems.map(function(i){return baseName(i.name);}));
     var suggs=recipes.filter(function(r){return !shopIds.has(String(r.id));}).map(function(r){
