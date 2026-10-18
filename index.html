@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Unsere Rezepte</title>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --fs:'Lora',Georgia,serif; --fn:'DM Sans',-apple-system,sans-serif;
+  --fs:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif; --fn:'DM Sans',-apple-system,sans-serif;
   --bg:#0f0e0c; --s1:#1a1916; --s2:#232220; --s3:#2c2b28;
   --b1:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.12);
   --tx:#f0ece4; --mu:#888680; --hi:#555350;
@@ -155,7 +155,7 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .ex-chk{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mu);cursor:pointer;user-select:none}
 .ex-chk input{accent-color:var(--ac)}
 .pool-pill.ex{border-style:solid;border-color:var(--ac);color:var(--ac)}
-.ing-opt-hdr{padding:8px 14px 4px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--hi);border-bottom:1px solid var(--b1);background:rgba(255,255,255,0.02)}
+.ing-opt-hdr{padding:10px 16px 8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);border-top:1px solid var(--b1);background:rgba(255,255,255,0.03)}
 .ing-opt-hdr span{text-transform:none;letter-spacing:0;margin-left:6px}
 .ing-tr.opt .ing-name{color:var(--mu)}
 .ing-ex{color:var(--gn);font-size:12px;font-weight:500}
@@ -187,30 +187,33 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .img-rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--fn)}
 #fi-img{display:none}
 /* Detail */
-.det-wrap{padding:24px 28px;max-width:640px}
-.det-img{width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:24px;display:block}
+.det-wrap{padding:24px 28px 40px;width:100%;max-width:720px;margin:0 auto}
+.det-img{width:100%;max-height:360px;object-fit:cover;border-radius:16px;margin-bottom:24px;display:block}
 .det-gallery{position:relative;margin-bottom:24px}
 .det-gallery .det-img{margin-bottom:0;cursor:pointer}
 .gallery-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
 .gallery-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:background .15s}
 .gallery-dot.active{background:var(--ac)}
-.det-hero{display:flex;align-items:flex-start;gap:20px;margin-bottom:24px}
-.det-emoji{font-size:52px;line-height:1;flex-shrink:0}
-.det-info{flex:1}
-.det-name{font-family:var(--fs);font-size:24px;font-weight:500;line-height:1.2;margin-bottom:8px}
-.det-author{font-size:12px;color:var(--mu);margin-bottom:8px}
-.det-tags{display:flex;flex-wrap:wrap;gap:6px}
-.det-sec{font-size:11px;letter-spacing:.08em;color:var(--hi);text-transform:uppercase;margin-bottom:12px;margin-top:20px}
-.ing-table{display:flex;flex-direction:column;border:1px solid var(--b1);border-radius:10px;overflow:hidden}
-.ing-tr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--b1);font-size:13px}
-.ing-tr:last-child{border-bottom:none}
-.ing-tr:nth-child(even){background:rgba(255,255,255,0.02)}
-.ing-name{color:var(--tx)}
-.ing-right{display:flex;align-items:center;gap:12px}
-.ing-hint{font-size:11px;color:var(--hi);font-style:italic}
-.ing-amt{color:var(--ac);font-weight:500;font-size:12px}
-.spice-pills{display:flex;flex-wrap:wrap;gap:7px}
-.spice-pill{font-size:12px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid var(--b2);color:var(--mu)}
+.det-hero{display:flex;align-items:flex-start;gap:20px;margin-bottom:22px}
+.det-emoji{font-size:56px;line-height:1;flex-shrink:0}
+.det-info{flex:1;display:flex;flex-direction:column;gap:8px}
+.det-eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);font-weight:600}
+.det-name{font-family:var(--fs);font-size:clamp(28px,6vw,40px);font-weight:800;line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.det-author{font-size:13px;color:var(--mu)}
+.det-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.det-tags .tag{font-size:13px;padding:4px 11px;border-radius:999px;font-weight:500}
+.det-sec{font-family:var(--fs);font-size:22px;font-weight:800;color:var(--tx);margin:30px 0 14px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.det-sec small{font-family:var(--fn);font-size:13px;font-weight:500;color:var(--mu)}
+.ing-table{display:flex;flex-direction:column}
+.ing-tr{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--b1);font-size:15px}
+.ing-table>.ing-tr:first-child,.ing-opt-hdr+.ing-tr{border-top:0}
+.ing-main{min-width:0}
+.ing-name{color:var(--tx);display:block}
+.ing-hint{display:block;font-size:12.5px;color:var(--mu);line-height:1.35}
+.ing-amt{color:var(--ac);font-weight:600;font-size:15px;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.ing-right{display:flex;align-items:center;gap:10px}
+.spice-pills{display:flex;flex-wrap:wrap;gap:7px;padding:12px 16px;border-top:1px solid var(--b1)}
+.spice-pill{font-size:13px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid var(--b2);color:var(--mu)}
 .pool-pills{display:flex;flex-wrap:wrap;gap:7px}
 .pool-pill{font-size:12px;padding:4px 12px;border-radius:20px;background:transparent;border:1px dashed var(--b2);color:var(--mu)}
 /* Pantry */
@@ -223,18 +226,21 @@ textarea.fi{resize:vertical;min-height:100px;line-height:1.6}
 .pantry-badge.full{background:var(--gnd);color:var(--gn)}
 .only-pantry{display:flex;align-items:center;gap:6px;color:var(--mu);font-size:12px;cursor:pointer;user-select:none}
 .only-pantry input{accent-color:var(--ac)}
-.steps-text{font-size:14px;color:var(--tx);line-height:1.8;background:var(--s2);border-radius:10px;padding:16px;border:1px solid var(--b1)}
-.det-step{margin-bottom:20px}
-.det-step-title{font-family:var(--fs);font-size:15px;font-weight:500;color:var(--ac);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.det-step-num{font-size:11px;background:var(--ad);color:var(--ac);padding:2px 8px;border-radius:10px;font-family:var(--fn)}
+.steps-text{font-size:15px;color:var(--tx);line-height:1.7;padding:16px;white-space:pre-line}
+.det-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
+.det-step{margin-bottom:14px}
+.det-step-title{font-family:var(--fs);font-size:18px;font-weight:700;color:var(--tx);padding:14px 16px 12px;display:flex;align-items:center;gap:12px}
+.det-step-num{width:30px;height:30px;border-radius:50%;background:var(--ad);color:var(--ac);display:grid;place-items:center;font-family:var(--fs);font-weight:800;font-size:15px;flex-shrink:0}
+.det-card .steps-text{border-top:1px solid var(--b1);background:rgba(255,255,255,0.02)}
+.det-card .det-step-title+.steps-text{border-top:0}
 .det-actions{display:flex;gap:10px;margin-top:24px}
 /* Nutrition */
-.nutrition-bar{display:flex;gap:0;border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:4px}
-.nutr-cell{flex:1;padding:10px 12px;text-align:center;border-right:1px solid var(--b1)}
+.nutrition-bar{display:flex;gap:0;background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:6px}
+.nutr-cell{flex:1;padding:14px 8px;text-align:center;border-right:1px solid var(--b1)}
 .nutr-cell:last-child{border-right:none}
-.nutr-val{font-size:15px;font-weight:500;color:var(--tx)}
-.nutr-lbl{font-size:11px;color:var(--hi);margin-top:2px}
-.nutr-note{font-size:11px;color:var(--hi);text-align:right}
+.nutr-val{font-family:var(--fs);font-size:22px;font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums}
+.nutr-lbl{font-size:12px;color:var(--mu);margin-top:2px}
+.nutr-note{font-size:12px;color:var(--mu);text-align:right}
 /* Shopping list */
 .shop-wrap{padding:0 28px 28px;max-width:560px}
 .shop-tabs{display:flex;gap:0;border-bottom:1px solid var(--b1);margin-bottom:20px}
@@ -806,7 +812,6 @@ function openDetail(id, fromLucky) {
   document.getElementById('det-content').dataset.id = id;
   var steps = getSteps(r);
   var clk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-  var cats = normCat(r.cat).map(function(c){ return '<span class="tag tag-cat">'+c+'</span>'; }).join('');
   var diff = r.difficulty ? '<span class="tag tag-'+r.difficulty+'">'+r.difficulty.charAt(0).toUpperCase()+r.difficulty.slice(1)+'</span>' : '';
   var prepT = r.timePrep ? '<span class="tag tag-time">'+clk+'Zuber. '+r.timePrep+' Min</span>' : '';
   var cookT = r.timeCook ? '<span class="tag tag-time">🔥 '+r.timeCook+' Min</span>' : '';
@@ -835,7 +840,7 @@ function openDetail(id, fromLucky) {
   var nutrHTML = '';
   if (totalKcal > 0) {
     var port = r.portions||1;
-    nutrHTML = '<div class="det-sec">Nährwerte'+(r.portions?' (pro Portion)':''+(missingNutr?' – teilweise':''))+'</div>'
+    nutrHTML = '<div class="det-sec">Nährwerte<small>'+(r.portions?'pro Portion':''+(missingNutr?'teilweise':''))+'</small></div>'
       +'<div class="nutrition-bar">'
       +'<div class="nutr-cell"><div class="nutr-val">'+Math.round(totalKcal/port)+'</div><div class="nutr-lbl">kcal</div></div>'
       +'<div class="nutr-cell"><div class="nutr-val">'+Math.round(totalProt/port*10)/10+'g</div><div class="nutr-lbl">Protein</div></div>'
@@ -854,21 +859,27 @@ function openDetail(id, fromLucky) {
       var n=typeof i==='string'?i:i.name;
       var a=typeof i==='string'?'':(i.amount||'');
       var hint=typeof i==='object'?(i.hint||''):'';
-      ingRows += '<div class="ing-tr"><span class="ing-name">'+n+'</span><div class="ing-right">'+(hint?'<span class="ing-hint">'+hint+'</span>':'')+(a?'<span class="ing-amt">'+a+'</span>':'')+'</div></div>';
+      ingRows += '<div class="ing-tr"><div class="ing-main"><span class="ing-name">'+n+'</span>'+(hint?'<span class="ing-hint">'+hint+'</span>':'')+'</div>'+(a?'<span class="ing-amt">'+a+'</span>':'')+'</div>';
     });
     var spPills = '';
     (s.spices||[]).forEach(function(sp){ var n=typeof sp==='string'?sp:sp.name; var a=typeof sp==='string'?'':(sp.amount||''); spPills+='<span class="spice-pill">🧂 '+n+(a?' <b style="color:var(--ac)">'+a+'</b>':'')+'</span>'; });
     var poolItems = s.pool||[];
     if (poolItems.length) {
       ingRows += '<div class="ing-opt-hdr">Optional'+(poolItems.some(function(p){return p.example;})?' <span>✓ = Beispielvariante für die Nährwerte</span>':'')+'</div>';
-      poolItems.forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); ingRows += '<div class="ing-tr opt"><span class="ing-name">'+n+'</span><div class="ing-right">'+(a?'<span class="ing-amt">'+a+'</span>':'')+(p.example?'<span class="ing-ex" title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</div></div>'; });
+      poolItems.forEach(function(p){ var n=typeof p==='string'?p:p.name; var a=typeof p==='string'?'':(p.amount||''); ingRows += '<div class="ing-tr opt"><div class="ing-main"><span class="ing-name">'+n+'</span></div><div class="ing-right">'+(a?'<span class="ing-amt">'+a+'</span>':'')+(p.example?'<span class="ing-ex" title="in der Beispielvariante für die Nährwerte">✓</span>':'')+'</div></div>'; });
     }
-    var title = steps.length>1 ? '<div class="det-step-title"><span class="det-step-num">Schritt '+(idx+1)+'</span>'+(hasTitle?' '+s.title:'')+'</div>' : (hasTitle?'<div class="det-step-title">'+s.title+'</div>':'');
-    stepsHTML += '<div class="det-step">'+title
-      +(ingRows?'<div class="ing-table" style="margin-bottom:10px">'+ingRows+'</div>':'')
-      +(spPills?'<div class="spice-pills" style="margin-bottom:10px">'+spPills+'</div>':'')
-      +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
-      +'</div>';
+    var spHTML = spPills?'<div class="spice-pills">'+spPills+'</div>':'';
+    if (steps.length>1) {
+      var title = '<div class="det-step-title"><span class="det-step-num">'+(idx+1)+'</span>'+(hasTitle?s.title:'Schritt '+(idx+1))+'</div>';
+      stepsHTML += '<div class="det-step"><div class="det-card">'+title
+        +(ingRows?'<div class="ing-table">'+ingRows+'</div>':'')+spHTML
+        +(s.steps?'<div class="steps-text">'+s.steps+'</div>':'')
+        +'</div></div>';
+    } else {
+      // Ein einziger Schritt: Zutaten und Zubereitung als zwei getrennte Bloecke
+      if (ingRows||spHTML) stepsHTML += '<div class="det-sec">Zutaten</div><div class="det-card"><div class="ing-table">'+ingRows+'</div>'+spHTML+'</div>';
+      if (s.steps) stepsHTML += '<div class="det-sec">Zubereitung</div><div class="det-card"><div class="steps-text">'+s.steps+'</div></div>';
+    }
   });
 
   var inShop = shopIds.has(String(r.id));
@@ -876,12 +887,12 @@ function openDetail(id, fromLucky) {
     +renderGalleryHTML(r.images||[], r.name)
     +'<div class="det-hero">'
     +(!(r.images&&r.images.length)?'<div class="det-emoji">'+(r.emoji||'🍽️')+'</div>':'')
-    +'<div class="det-info"><div class="det-name">'+r.name+'</div>'
+    +'<div class="det-info">'+(normCat(r.cat).length?'<div class="det-eyebrow">'+normCat(r.cat).join(' · ')+'</div>':'')+'<div class="det-name">'+r.name+'</div>'
     +(r.author?'<div class="det-author">von '+r.author+'</div>':'')
-    +'<div class="det-tags">'+cats+diff+prepT+cookT+totT+(r.portions?'<span class="tag tag-time">🍽 '+r.portions+' Port.</span>':'')+'</div>'
+    +'<div class="det-tags">'+diff+prepT+cookT+totT+(r.portions?'<span class="tag tag-time">🍽 '+r.portions+' Port.</span>':'')+'</div>'
     +'</div></div>'
     +nutrHTML
-    +(stepsHTML?'<div class="det-sec">Zubereitung</div>'+stepsHTML:'')
+    +(stepsHTML?(steps.length>1?'<div class="det-sec">Zubereitung<small>'+steps.length+' Schritte</small></div>':'')+stepsHTML:'')
     +'<div class="det-actions">'
     +'<button class="btn btn-ghost" onclick="sv(\''+detailFromView+'\')">← Zurück</button>'
     +'<button class="btn'+(inShop?' btn-ghost':' btn-primary')+'" id="shop-tog-btn" onclick="toggleShop(\''+r.id+'\',this)">'+(inShop?'✓ In Einkaufsliste':'+ Einkaufsliste')+'</button>'
